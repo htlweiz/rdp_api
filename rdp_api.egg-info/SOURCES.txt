@@ -1,0 +1,10 @@
+setup.cfg
+setup.py
+rdp_api/__init__.py
+rdp_api/model.py
+rdp_api.egg-info/PKG-INFO
+rdp_api.egg-info/SOURCES.txt
+rdp_api.egg-info/dependency_links.txt
+rdp_api.egg-info/not-zip-safe
+rdp_api.egg-info/requires.txt
+rdp_api.egg-info/top_level.txt
