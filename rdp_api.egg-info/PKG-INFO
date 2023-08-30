@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: rdp-api
-Version: 1.0.0
-Summary: restful api for rdp
-Home-page: https://github.com
-Author: Robert Ulmer
-Author-email: rulmer@lr.htlweiz.at
-Keywords: logging,pytest,file,parser,output,input,restful,rest,fastapi
-Provides-Extra: dev
