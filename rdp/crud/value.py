@@ -61,11 +61,14 @@ class SensorCrud:
 
     def get_values(self, value_type_id, start=None, end=None):
         with Session(self._engine) as session:
-            stmt = select(Value).join(Value.value_type).where(ValueType.id==value_type_id)
+            stmt = select(Value)
+            if value_type_id:
+                stmt = stmt.join(Value.value_type).where(ValueType.id==value_type_id)
             if start:
                 stmt = stmt.where(Value.time >= start)
             if end:
                 stmt = stmt.where(Value.time <= end)
+            stmt = stmt.order_by(value.time)
             logging.error(start) 
             logging.error(stmt)
 
