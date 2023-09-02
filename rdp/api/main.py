@@ -11,7 +11,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World!"}
+    return {"Hello": "World"}
 
 @app.get("/type/")
 def read_types() -> List[ApiTypes.ValueType]:
@@ -25,7 +25,7 @@ def read_type(id) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found") 
     return value_type 
 
-@app.put("/types/{id}/")
+@app.put("/type/{id}/")
 def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     try:
         crud.change_value_name(id, value_type.type_name)
@@ -33,7 +33,7 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get("/types/{id}/values/")
+@app.get("/type/{id}/values/")
 def get_values(id, start=None, end=None):
     try:
         values = crud.get_values(id, start, end)
