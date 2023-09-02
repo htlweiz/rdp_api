@@ -12,7 +12,7 @@ class SensorCrud:
 
         Base.metadata.create_all(self._engine)
 
-    def add_or_update_value_type(self, value_type_id, value_type_name=None):
+    def add_or_update_value_type(self, value_type_id, value_type_name=None, value_type_unit=None):
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id==value_type_id)
             db_type = None
@@ -24,9 +24,13 @@ class SensorCrud:
                 db_type.type_name=value_type_name
             elif not db_type.type_name:
                 db_type.type_name="TYPE_%d" % value_type_id
+            if value_type_unit:
+                db_type.type_unit=value_type_unit
+            elif not db_type.type_unit:
+                db_type.type_unit="UNIT_%d" % value_type_id
             session.add_all([db_type])
             session.commit()
-            return db_type 
+            return db_type
 
     def add_value(self, value_time, value_type, value_value):
 
@@ -54,14 +58,6 @@ class SensorCrud:
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id==value_type_id)
             return session.scalars(stmt).one()
-
-    def change_value_name(self, value_type_id, name):
-        with Session(self._engine) as session:
-            stmt = select(ValueType).where(ValueType.id==value_type_id)
-            value_type = session.scalars(stmt).one()
-            value_type.type_name=name
-            session.add(value_type)
-            session.commit()
 
     def get_values(self, value_type_id, start=None, end=None):
         with Session(self._engine) as session:

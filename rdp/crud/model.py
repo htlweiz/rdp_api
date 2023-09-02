@@ -12,7 +12,8 @@ class Base(DeclarativeBase):
 class ValueType(Base):
     __tablename__ ="value_type"
     id: Mapped[int] = mapped_column(primary_key=True)
-    type_name: Mapped[Optional[str]]
+    type_name: Mapped[str] 
+    type_unit: Mapped[str]
 
     values: Mapped[List["Value"]] = relationship (
         back_populates="value_type", cascade="all, delete-orphan"

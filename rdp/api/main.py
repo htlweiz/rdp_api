@@ -28,7 +28,7 @@ def read_type(id) -> ApiTypes.ValueType:
 @app.put("/type/{id}/")
 def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     try:
-        crud.change_value_name(id, value_type.type_name)
+        crud.add_or_update_value_type(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
         return read_type(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
