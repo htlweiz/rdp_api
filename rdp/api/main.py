@@ -33,7 +33,7 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get("/values/")
+@app.get("/value/")
 def get_values(type_id=None, start=None, end=None):
     try:
         values = crud.get_values(type_id, start, end)
