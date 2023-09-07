@@ -1,1 +1,1 @@
-from .reader import Reader, LOGGER_TO_USE
+from .reader import Reader
