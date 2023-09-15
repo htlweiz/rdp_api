@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 class Base(DeclarativeBase):
     pass
-
+ 
 class ValueType(Base):
     __tablename__ ="value_type"
     id: Mapped[int] = mapped_column(primary_key=True)
