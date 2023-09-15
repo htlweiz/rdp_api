@@ -31,6 +31,15 @@ class Crud:
 
         Returns:
             _type_: _description_
+        
+        Description:
+            Gets the statement if it exists.
+            If it has no type, it gets assigned the type of the value_type_id
+            if value_type_name is given, the name of the type from the previus stepps is changed
+            otherwise the name is just TYPE_{value_type_id}
+            if value_type_unit is given, the units of the entry will be changed
+            otherwise the units will be UNIT_{value_type_id}
+            The Entry then will be commited and returned
         """
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type_id)
@@ -58,6 +67,13 @@ class Crud:
             value_time (int): unix time stamp of the value.
             value_type (int): Valuetype id of the given value. 
             value_value (float): The measurement value as float.
+        
+        Description:
+            Get the Value Type with value_type from db
+            Adds the value type if non existent, else get it from db
+            Creates a Value object with the time, value and type
+            add everything to the session
+            try to commit the session and possibly raise IntegrityError
         """        
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
@@ -76,6 +92,9 @@ class Crud:
 
         Returns:
             List[ValueType]: List of ValueType objects. 
+
+        Description:
+            Return all Value Types
         """
         with Session(self._engine) as session:
             stmt = select(ValueType)
@@ -89,6 +108,9 @@ class Crud:
 
         Returns:
             ValueType: The ValueType object
+        
+        Description:
+            Return a Valye Type based on its id
         """
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type_id)
@@ -108,6 +130,13 @@ class Crud:
 
         Returns:
             List[Value]: _description_
+
+        Description:
+            Get all values with the type_id
+            restrict it based on start then end
+            order all statements by time
+            log errors
+            return all
         """
         with Session(self._engine) as session:
             stmt = select(Value)
