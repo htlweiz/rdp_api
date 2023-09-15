@@ -11,6 +11,7 @@ DB_URL = "sqlite:///:memory:"
 
 # Initialize the database engine
 engine = create_engine(DB_URL)
+asdfghjk
 
 # Create the database tables
 Base.metadata.create_all(engine)
