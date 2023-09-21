@@ -21,25 +21,23 @@ def test_get_value_type(crud_with_session: CrudSession):
     crud, Session = crud_with_session
 
     value_types = [
-        {"name": "type0", "unit": "°C"},
-        {"name": "type1", "unit": "%"},
-        {"name": "temperature", "unit": "UNIT0"},
-        {"name": "HUMIDITY_01!", "unit": "Test"},
+        ("type0", "°C"),
+        ("type1", "%"),
+        ("temperature", "UNIT0"),
+        ("HUMIDITY_01!", "Test"),
     ]
 
-    stored_value_types = None
     with Session() as session:
-        stored_value_types = map(
+        db_value_types = map(
             lambda value_type: ValueType(
-                type_name=value_type["name"], type_unit=value_type["unit"]
+                type_name=value_type[0], type_unit=value_type[1]
             ),
             value_types,
         )
-        stored_value_types = list(stored_value_types)
-        session.add_all(stored_value_types)
+        session.add_all(db_value_types)
         session.commit()
 
-    for stored_value_type in stored_value_types:
-        db_value_type = crud.get_value_type(stored_value_type.id)
-        assert db_value_type.type_name == stored_value_type.type_name
-        assert db_value_type.type_unit == stored_value_type.type_unit
+    for i, value_type in enumerate(value_types):
+        db_value_type = crud.get_value_type(i + 1)
+        assert db_value_type.type_name == value_type[0]
+        assert db_value_type.type_unit == value_type[1]
