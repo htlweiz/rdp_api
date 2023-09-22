@@ -1,13 +1,51 @@
 import logging
 from typing import List
 
+from abc import ABC, abstractmethod
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
 from .model import Base, Value, ValueType
 
+class Command(ABC):
+    @abstractmethod
+    def execute(self, stmt):
+        pass
 
+class GetValueTypeId(Command):
+    def __init__(self, value_type_id):
+        self.value_type_id = value_type_id
+
+    def execute(self, stmt):
+        return stmt.join(Value.value_type).where(ValueType.id == self.value_type_id)
+
+class GetTimeStart(Command):
+    def __init__(self, start):
+        self.start = start
+
+    def execute(self, stmt):
+        return stmt.where(Value.time >= self.start)
+
+class GetTimeEnd(Command):
+    def __init__(self, end):
+        self.end = end
+
+    def execute(self, stmt):
+        return stmt.where(Value.time <= self.end)
+
+class Invoker:
+    def __init__(self):
+        self.commands = []
+
+    def add_command(self, command):
+        self.commands.append(command)
+
+    def execute_commands(self, stmt):
+        for command in self.commands:
+            stmt = command.execute(stmt)
+        return stmt
+    
 class Crud:
     def __init__(self, engine):
         self._engine = engine
@@ -95,8 +133,7 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
-    ) -> List[Value]:
+        self, value_type_id: int = None, start: int = None, end: int = None):
         """Get Values from database.
 
         The result can be filtered by the following paramater:
@@ -109,16 +146,18 @@ class Crud:
         Returns:
             List[Value]: _description_
         """
+        invoker = Invoker()
+
+        if value_type_id is not None:
+            invoker.add_command(GetValueTypeId(value_type_id))
+        if start is not None:
+            invoker.add_command(GetTimeStart(start))
+        if end is not None:
+            invoker.add_command(GetTimeEnd(end))
+
         with Session(self._engine) as session:
             stmt = select(Value)
-            if value_type_id is not None:
-                stmt = stmt.join(Value.value_type).where(ValueType.id == value_type_id)
-            if start is not None:
-                stmt = stmt.where(Value.time >= start)
-            if end is not None:
-                stmt = stmt.where(Value.time <= end)
+            stmt = invoker.execute_commands(stmt)
             stmt = stmt.order_by(Value.time)
-            logging.error(start)
-            logging.error(stmt)
 
             return session.scalars(stmt).all()

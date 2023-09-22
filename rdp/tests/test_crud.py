@@ -85,6 +85,7 @@ def test_get_value_type(crud_session):
         assert value_type.type_name == "Pressure"
         assert value_type.type_unit == "Pascal"
 
+@pytest.fixture(scope="function")
 def test_get_values(crud_session):
     Session = sessionmaker(bind=crud_session._engine)
 
