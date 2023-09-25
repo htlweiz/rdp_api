@@ -78,7 +78,7 @@ class Crud:
     def add_or_update_device(self, device_device: str, device_id: int = None) -> None:
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.device == device_device)
-            if session(stmt).count() != 0:
+            if session.execute(stmt).scalar() != 0:
                 logging.warn(f"Device {device_device} already exists")
                 return
             stmt = select(Device).where(Device.id == device_id)
