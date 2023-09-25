@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device
 
 
 class Crud:
@@ -51,20 +51,42 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(
+        self, value_time: int, value_type: int, device: int, value_value: float
+    ) -> None:
         """Add a measurement point to the database.
 
         Args:
             value_time (int): unix time stamp of the value.
-            value_type (int): Valuetype id of the given value. 
+            value_type (int): Valuetype id of the given value.
             value_value (float): The measurement value as float.
-        """        
+        """
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
+            db_value = Value(
+                time=value_time, value=value_value, value_type=db_type, device_id=device
+            )
 
             session.add_all([db_type, db_value])
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+
+    def add_or_update_device(self, device_device: str, device_id: int = None) -> None:
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.device == device_device)
+            if session(stmt).count() != 0:
+                logging.warn(f"Device {device_device} already exists")
+                return
+            stmt = select(Device).where(Device.id == device_id)
+            db_device = Device(device=device_device)
+            for device in session.scalars(stmt):
+                db_device = device
+            db_device.device = device_device
+            session.add(db_device)
             try:
                 session.commit()
             except IntegrityError:
@@ -75,7 +97,7 @@ class Crud:
         """Get all configured value types
 
         Returns:
-            List[ValueType]: List of ValueType objects. 
+            List[ValueType]: List of ValueType objects.
         """
         with Session(self._engine) as session:
             stmt = select(ValueType)
@@ -121,4 +143,14 @@ class Crud:
             logging.error(start)
             logging.error(stmt)
 
+            return session.scalars(stmt).all()
+
+    def get_devices(self) -> List[Device]:
+        """Get Devices from database.
+
+        Returns:
+            List[Device]
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device)
             return session.scalars(stmt).all()

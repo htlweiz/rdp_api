@@ -31,10 +31,10 @@ class Value(Base):
     device_id: Mapped[int] = mapped_column(ForeignKey("device.id"))
 
     value_type: Mapped["ValueType"] = relationship(back_populates="values")
-    device: Mapped["Device"] = relationship(back_populates="device")
+    device: Mapped["Device"] = relationship(back_populates="values")
 
     __table_args__ = (
-        UniqueConstraint("time", "value_type_id", "device.id", name="value integrity"),
+        UniqueConstraint("time", "value_type_id", "device_id", name="value integrity"),
     )
 
     def __repr__(self) -> str:
@@ -49,3 +49,5 @@ class Device(Base):
     values: Mapped[List["Value"]] = relationship(
         back_populates="device", cascade="all, delete-orphan"
     )
+
+    __table_args__ = (UniqueConstraint("device", name="device integrity"),)
