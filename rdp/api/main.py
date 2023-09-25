@@ -105,7 +105,7 @@ async def startup_event() -> None:
     logger.debug("STARTUP: Sensor reader completed!")
 
 @app.on_event("shutdown")
-async def startup_event():
+async def shutdown_event():
     """stop the character device reader
     """    
     global reader
