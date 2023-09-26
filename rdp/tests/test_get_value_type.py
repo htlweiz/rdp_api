@@ -17,3 +17,4 @@ def test_add_or_update_value_type(crud_with_session: CrudSession):
     assert new_value_type.id == value_type_id
     assert new_value_type.type_name == value_type_name
     assert new_value_type.type_unit == value_type_unit
+
