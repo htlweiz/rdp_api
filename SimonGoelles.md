@@ -1,2 +1,1 @@
-First change:
-- Markdown created
+Prove of working setup
