@@ -1,5 +1,2 @@
-import asyncio
-
-from rdp.api.main import startup_event
-
-asyncio.run(startup_event())
+# load fixtures
+from tests.fixtures import crud_in_memory, crud_session_in_memory
