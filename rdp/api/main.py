@@ -1,11 +1,11 @@
-from typing import Union, List
+import logging
+from typing import List
 
 from fastapi import FastAPI, HTTPException
-
+from rdp.crud import Crud, create_engine
 from rdp.sensor import Reader
-from rdp.crud import create_engine, Crud
+
 from . import api_types as ApiTypes
-import logging
 
 logger = logging.getLogger("rdp.api")
 app = FastAPI()
@@ -50,7 +50,6 @@ def read_type(id: int) -> ApiTypes.ValueType:
         return crud.get_value_type(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-    return value_type
 
 
 @app.put("/type/{id}/")
@@ -93,13 +92,15 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     global crud
     try:
         crud.add_or_update_device(
-            id, device_device=device.name, device_name=device.name
+            id, device_device=device.device, device_name=device.name
         )
         return get_device(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-    except crud.IntegrityError:
-        raise HTTPException(status_code=400)
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
 
 
 @app.get("/device/")
