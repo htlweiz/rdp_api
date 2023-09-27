@@ -123,10 +123,12 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_devices(self, device_id: int = None):
+    def get_devices(self) -> List[Device]:
+        """Get all configured devices
+
+        Returns:
+            List[Device]: List of Device objects. 
+        """
         with Session(self._engine) as session:
             stmt = select(Device)
-            if device_id is not None:
-                stmt = stmt.join(Device.id).where(Device.id == device_id)
-            logging.error(stmt)
             return session.scalars(stmt).all()

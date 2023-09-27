@@ -92,14 +92,15 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
-@app.get("/device/")
-def get_device(device_id:int=None):
+@app.get("/devices/")
+def read_devices() -> List[ApiTypes.Device]:
+    """Implements the get of all devices
+
+    Returns:
+        List[ApiTypes.Device]: list of available devices. 
+    """
     global crud
-    try:
-        devices = crud.get_devices(device_id)
-        return devices
-    except crud.NoResultFound:
-        raise HTTPException(status_code=404, deltail="Item not found")
+    return crud.get_devices()
 
 @app.on_event("startup")
 async def startup_event() -> None:
