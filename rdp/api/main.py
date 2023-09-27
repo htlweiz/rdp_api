@@ -112,3 +112,32 @@ async def startup_event():
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
+
+@app.put("/device/{name}/")
+def put_device(name, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
+    global crud
+    try:
+        crud.add_or_update_device(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
+        return read_type(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/device/{device_id}")
+def get_values(device_id:int=None) -> List[ApiTypes.Value]: 
+    global crud
+    try:
+        device = crud.get_devices(device_id)
+        return device
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
+@app.put("/value/{device_id}/")
+def put_device(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
+    global crud
+    try:
+        crud.add_or_update_value_device(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
+        return read_type(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+

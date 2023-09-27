@@ -122,3 +122,14 @@ class Crud:
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+
+    def get_devices(self, id):
+            
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == id)
+            return session.scalars(stmt).one()
+
+
+
+

@@ -1,6 +1,6 @@
 from typing import List
 from typing import Optional
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, Column, Integer
 from sqlalchemy import String, Float, DateTime
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -40,3 +40,11 @@ class Value(Base):
 
     def __repr__(self) -> str:
         return f"Value(id={self.id!r}, value_time={self.time!r} value_type={self.value_type.type_name!r}, value={self.value})"
+
+class Device(Base):
+    __tablename__ = "device"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self) -> str:
+        return f"Device(id={self.id!r}), device_name={self.name!r}"
