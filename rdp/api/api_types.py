@@ -15,6 +15,12 @@ class ValueNoID(BaseModel):
 class Value(ValueNoID):
     id: int
 
+class DeviceNoID(BaseModel):
+    name : str
+
+class Device(DeviceNoID):
+    id: int
+
 class ApiDescription(BaseModel):
     description : str = "This is the Api"
     value_type_link : str = "/type"

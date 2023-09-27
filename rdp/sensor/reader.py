@@ -8,6 +8,7 @@ from rdp.crud import Crud
 logger = logging.getLogger("rdp.sensor")
 
 
+# zuerst devices aus der DB rauslesen und dann zu den Values zubinden 
 class Reader:
     def __init__(self, crud: Crud, device: str = "/dev/rdp_cdev"):
         self._crud = crud
@@ -47,7 +48,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0])
+                    self._crud.add_value(value_time, type_num, value[0], ) # device_id)
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break

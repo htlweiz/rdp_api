@@ -1,28 +1,38 @@
-import sqlalchemy as db
-from sqlalchemy import select, create_engine
+
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import registry, Session
 
-from api.rdp.crud import Crud, create_engine
+from api.rdp.crud import Crud, create_engine, Base
 # from rdp.crud.crud import Crud #, model
 
 class TestCases:
 
     def test_01_add_value_type(self):
 
-        test_data_type = ["Rain", "Wind Speed"]
-        test_data_type_id = [3, None ] # Temperature, Humidity, Pressure
-        test_data_unit = ["ml", "K"]
-
         # first check if db is empty 
         # add values but with None and check count
         # add values but with real names and check count
 
-        self.engine = db.create_engine("sqlite:///:memory:")
-        crud = Crud(self.engine)
+        test_data_name = ["Rain", "Wind Speed"]
+        test_data_type_id = [None, None ] # Temperature, Humidity, Pressure
+        test_data_unit = ["ml", "K"]
 
-        for i, value in enumerate(test_data_type):
-            result = crud.add_or_update_value_type()
+        engine = create_engine("sqlite:///:memory:")
+        crud = Crud(engine)
+
+        for i, value in enumerate(test_data_name):
+            result = crud.add_or_update_value_type(test_data_type_id[i],
+                                                   test_data_name[i],
+                                                   test_data_unit[i])
+            
+        result = crud.get_value_types()
+        assert len(result) == 2
+
+        for i in range(len(test_data_name)):
+            assert result[i].type_name == test_data_name[i]
+            assert result[i].type_unit == test_data_unit[i]
+
+        Base.metadata.drop_all(engine)
 
         """
         with Session(self._engine) as session:
@@ -36,13 +46,43 @@ class TestCases:
         # first check if db is empty 
         # add values but with None and check count
         # add values but with real names and check count
+        
+        test_data_name = ["Rain", "Wind"]
+        test_data_type_id = [None, None ] # Temperature, Humidity, Pressure
+        test_data_unit = ["L", "K"]
 
-        """
-        with Session(self._engine) as session:
+        engine = create_engine("sqlite:///:memory:")
+        crud = Crud(engine)
 
-            session.add_all([db_type])
-            session.commit()
-        """
+        for i, value in enumerate(test_data_name):
+            result = crud.add_or_update_value_type(test_data_type_id[i],
+                                                   test_data_name[i],
+                                                   test_data_unit[i])
+
+        result = crud.get_value_types()
+        assert len(result) == 2
+
+        for i in range(len(test_data_name)):
+            assert result[i].type_name == test_data_name[i]
+            assert result[i].type_unit == test_data_unit[i]
+
+        test_data_name = ["Rainfall", "Wind Speed"]
+        test_data_type_id = [1, 2 ] # Temperature, Humidity, Pressure
+        test_data_unit = ["ml", "km/h"]
+
+        for i, value in enumerate(test_data_name):
+            result = crud.add_or_update_value_type(test_data_type_id[i],
+                                                   test_data_name[i],
+                                                   test_data_unit[i])
+
+        result = crud.get_value_types()
+        assert len(result) == 2
+
+        for i in range(len(test_data_name)):
+            assert result[i].type_name == test_data_name[i]
+            assert result[i].type_unit == test_data_unit[i]
+
+        Base.metadata.drop_all(engine)
 
     def test_03_add_value(self):
 
@@ -50,8 +90,8 @@ class TestCases:
         test_data_type = [0, 1, 2 ] # Temperature, Humidity, Pressure
         test_data_value = [17.2999992370605, 94.0, 978.0]
         
-        self.engine = db.create_engine("sqlite:///:memory:")
-        crud = Crud(self.engine)
+        engine = create_engine("sqlite:///:memory:")
+        crud = Crud(engine)
 
         size_before = crud.get_values()
 
@@ -69,8 +109,8 @@ class TestCases:
         test_data_types = ["Temperature", "Humidity", "Pressure"]
 
         # self.engine = db.create_engine("sqlite+pysqlite:///:memory:", echo=True, future=True)
-        self.engine = create_engine("sqlite:///api/tests/test_db.db")
-        crud = Crud(self.engine)
+        engine = create_engine("sqlite:///api/tests/test_db.db")
+        crud = Crud(engine)
         test_result = crud.get_value_types()
         # what does the return look like ??
 
@@ -84,8 +124,8 @@ class TestCases:
         test_data_type_id = [0, 1, 2 ]
         test_data_types = ["Temperature", "Humidity", "Pressure"]
 
-        self.engine = db.create_engine("sqlite:///api/tests/test_db.db")
-        crud = Crud(self.engine)
+        engine = create_engine("sqlite:///api/tests/test_db.db")
+        crud = Crud(engine)
 
         for i in test_data_type_id:
             test_result = crud.get_value_type(i)
@@ -99,8 +139,8 @@ class TestCases:
         test_data_type_id = [None, 1, None, None]
         expected_result_ammount = [12, 4, 1221, 1347]
 
-        self.engine = db.create_engine("sqlite:///api/tests/test_db.db")
-        crud = Crud(self.engine)
+        engine = create_engine("sqlite:///api/tests/test_db.db")
+        crud = Crud(engine)
 
         for i, value in enumerate(test_data_date_end):
             result = crud.get_values(test_data_type_id[i], 

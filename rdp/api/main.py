@@ -92,10 +92,54 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+
+@app.put("/device/{name}/")
+def put_device(id, device_name: ApiTypes.Device) -> ApiTypes.Device:
+    """PUT request to add a device. This api call is used to add a device with a name.
+
+    Args:
+        id (int): primary key of the requested device
+        device_name (): 
+
+    Returns:
+        ApiTypes.Value: _description_
+    """
+    # global crud
+    try:
+        # crud.add_or_update_device(id, device_name=device_name.device_name)
+        # return read_type(id)
+        return 42
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/device/{id}/")
+def get_device(id:int=None) -> List[ApiTypes.Device]:
+    """_summary_
+
+    Args:
+        id (int, optional): _description_. Defaults to None.
+
+    Returns:
+        List[ApiTypes.Devices]: _description_
+    """
+    global crud
+    #try:
+    #    crud.get_device()
+    #except:
+    return 0
+
+"""@app.get("/device/{id}/{type_id}/")
+def get_valued_by_device(device_id:int=None, type_id:int=None) -> List[ApiTypes.Value]:
+    pass
+
+@app.put("/value/{device_id}/")
+def put_value_by_device() -> ApiTypes.Value:
+    pass
+"""
+
 @app.on_event("startup")
 async def startup_event() -> None:
-    """start the character device reader
-    """    
+    """start the character device reader"""    
     logger.info("STARTUP: Sensor reader!")
     global reader, crud
     engine = create_engine("sqlite:///rdb.test.db")
@@ -106,8 +150,6 @@ async def startup_event() -> None:
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """stop the character device reader
-    """    
     global reader
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
