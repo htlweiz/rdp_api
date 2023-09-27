@@ -75,17 +75,20 @@ class Crud:
                 logging.error("Integrity")
                 raise
 
-    def add_or_update_device(self, device_device: str, device_id: int = None) -> None:
+    def add_or_update_device(
+        self, device_id: int = None, device_device: str = None, device_name: str = None
+    ) -> None:
         with Session(self._engine) as session:
-            stmt = select(Device).where(Device.device == device_device)
-            if session.execute(stmt).scalar() != 0:
-                logging.warn(f"Device {device_device} already exists")
-                return
             stmt = select(Device).where(Device.id == device_id)
-            db_device = Device(device=device_device)
+            db_device = None
             for device in session.scalars(stmt):
                 db_device = device
-            db_device.device = device_device
+            if db_device is None:
+                db_device = Device(device=device_device, name=device_name)
+            if device_device:
+                db_device.device = device_device
+            if device_name:
+                db_device.name = device_name
             session.add(db_device)
             try:
                 session.commit()
@@ -117,7 +120,11 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
+        self,
+        value_type_id: int = None,
+        start: int = None,
+        end: int = None,
+        device: str = None,
     ) -> List[Value]:
         """Get Values from database.
 
@@ -139,11 +146,18 @@ class Crud:
                 stmt = stmt.where(Value.time >= start)
             if end is not None:
                 stmt = stmt.where(Value.time <= end)
+            if device is not None:
+                stmt = stmt.where(Value.device.name == device)
             stmt = stmt.order_by(Value.time)
             logging.error(start)
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+    def get_device(self, id: int):
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == id)
+            return session.scalars(stmt).one()
 
     def get_devices(self) -> List[Device]:
         """Get Devices from database.

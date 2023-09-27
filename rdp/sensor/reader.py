@@ -12,7 +12,10 @@ class Reader:
     def __init__(self, crud: Crud, device: str = "/dev/rdp_cdev"):
         self._crud = crud
         self._thread: threading.Thread = None
-        crud.add_or_update_device(device)
+        try:
+            crud.add_or_update_device(None, device_device=device, device_name="default_device")
+        except crud.IntegrityError:
+            pass
         self._devices = []
 
     def start(self) -> None:
