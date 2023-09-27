@@ -21,4 +21,5 @@ class ApiDescription(BaseModel):
     value_link : str = "/value"
 
 class Device(BaseModel):
-    pass
+    id: int
+    name: str
