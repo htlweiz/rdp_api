@@ -122,3 +122,6 @@ class Crud:
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+    def get_devices():
+        pass

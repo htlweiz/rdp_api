@@ -92,6 +92,15 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+@app.get("/device/")
+def get_device(device_id:int=None):
+    global crud
+    try:
+        devices = crud.get_devices(device_id)
+        return devices
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader
