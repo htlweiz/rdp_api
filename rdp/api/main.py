@@ -143,7 +143,7 @@ def get_devices() -> List[ApiTypes.Device]:
 
 @app.get("/value/")
 def get_values(
-    type_id: int = None, start: int = None, end: int = None, device: str = None
+    type_id: int = None, start: int = None, end: int = None, device: int = None
 ) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
 
@@ -151,6 +151,7 @@ def get_values(
         type_id (int, optional): If set, only values of this type are returned. Defaults to None.
         start (int, optional): If set, only values at least as new are returned. Defaults to None.
         end (int, optional): If set, only values not newer than this are returned. Defaults to None.
+        end (int, optional): If set, only values of specified device are returned. Defaults to None.
 
     Raises:
         HTTPException: _description_

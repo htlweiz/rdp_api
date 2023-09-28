@@ -124,7 +124,7 @@ class Crud:
         value_type_id: int = None,
         start: int = None,
         end: int = None,
-        device: str = None,
+        device_id: int = None,
     ) -> List[Value]:
         """Get Values from database.
 
@@ -146,8 +146,8 @@ class Crud:
                 stmt = stmt.where(Value.time >= start)
             if end is not None:
                 stmt = stmt.where(Value.time <= end)
-            if device is not None:
-                stmt = stmt.where(Value.device.name == device)
+            if device_id is not None:
+                stmt = stmt.where(Value.device_id == device_id)
             stmt = stmt.order_by(Value.time)
             logging.error(start)
             logging.error(stmt)
