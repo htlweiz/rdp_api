@@ -80,7 +80,17 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
 
 
 @app.get("/device/{id}")
-def get_device(id):
+def get_device(id) -> ApiTypes.Device:
+    """Get specific device from the database with the specified id.
+    Args:
+        id int: device id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Device: A device in the database.
+    """
     global crud
     try:
         return crud.get_device(id)
@@ -90,6 +100,18 @@ def get_device(id):
 
 @app.put("/device/{id}/")
 def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    """PUT device: Add device or update device of id.
+
+    Args:
+        id int: device id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Device: A device in the database.
+
+    """
     global crud
     try:
         crud.add_or_update_device(
@@ -104,6 +126,13 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
 
 @app.get("/device/")
 def get_devices() -> List[ApiTypes.Device]:
+    """Get all devices from the database.
+    Raises:
+        HTTPException
+
+    Returns:
+        List[ApiTypes.Device]: A list of all devices stored in the database.
+    """
     global crud
     try:
         return crud.get_devices()
