@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device
 
 
 class Crud:
@@ -121,4 +121,14 @@ class Crud:
             logging.error(start)
             logging.error(stmt)
 
+            return session.scalars(stmt).all()
+
+    def get_devices(self) -> List[Device]:
+        """Get all configured devices
+
+        Returns:
+            List[Device]: List of Device objects. 
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device)
             return session.scalars(stmt).all()
