@@ -132,3 +132,33 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(Device)
             return session.scalars(stmt).all()
+
+    def add_or_update_device(
+        self,
+        device_id: int = None,
+        device_name: str = None
+    ) -> None:
+        """update or add a value type
+
+        Args:
+            value_type_id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
+            value_type_name (str, optional): Typename wich should be set or updated. Defaults to None.
+            value_type_unit (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(ValueType).where(ValueType.id == device_id)
+            db_device = None
+            for device in session.scalars(stmt):
+                db_device = device
+            if device_id is None:
+                db_device = Device(id=device_id)
+            if device_name:
+                db_device.name = device_name
+            elif not db_device.device_name:
+                db_device.device_name = "TYPE_%d" % device_id
+            session.add_all([db_device])
+            session.commit()
+            return db_device

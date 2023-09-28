@@ -47,7 +47,7 @@ def read_type(id: int) -> ApiTypes.ValueType:
          return crud.get_value_type(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found") 
-    return value_type 
+    return value_type
 
 @app.put("/type/{id}/")
 def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
@@ -101,6 +101,28 @@ def read_devices() -> List[ApiTypes.Device]:
     """
     global crud
     return crud.get_devices()
+
+@app.put("/device/{value}/")
+def put_device(value, id=None, name=None) -> str:
+    """PUT request to add a new device entry.
+
+    Args:
+        name (str): The name of the new device to be added.
+
+    Raises:
+        HTTPException: Thrown if there is an issue adding the new device entry.
+
+    Returns:
+        str: "Success" if the device entry is successfully added.
+    """
+    global crud
+    if type(value) == int:
+        id = value
+    try:
+        crud.add_or_update_device(device_name=name)
+        return "Success"
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 @app.on_event("startup")
 async def startup_event() -> None:
