@@ -1,3 +1,5 @@
+"""Crud Module. """
+
 import logging
 from typing import List
 

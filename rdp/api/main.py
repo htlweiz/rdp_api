@@ -1,3 +1,5 @@
+"""API Module. GET POST PUT Values."""
+
 from typing import Union, List
 
 from fastapi import FastAPI, HTTPException
