@@ -13,7 +13,9 @@ class Reader:
         self._crud = crud
         self._thread: threading.Thread = None
         try:
-            crud.add_or_update_device(None, device_device=device, device_name="default_device")
+            crud.add_or_update_device(
+                None, device_device=device, device_name="default_device"
+            )
         except crud.IntegrityError:
             pass
         self._devices = []
@@ -58,7 +60,10 @@ class Reader:
             self._devices = self._crud.get_devices()
             logger.info("A")
             for device in self._devices:
-                self._read_device(device)
+                try:
+                    self._read_device(device)
+                except FileNotFoundError as e:
+                    logger.error(e)
             time.sleep(0.1)
             count += 1
             if count % 100 == 0:

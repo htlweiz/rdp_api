@@ -44,7 +44,7 @@ class Value(Base):
 class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column()
+    name: Mapped[str]
     device: Mapped[str]
 
     values: Mapped[List["Value"]] = relationship(

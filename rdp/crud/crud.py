@@ -80,13 +80,13 @@ class Crud:
         self, device_id: int = None, device_device: str = None, device_name: str = None
     ) -> Device:
         db_device = None
-        tmp_device = device_device
+        tmp_device = None
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == device_id)
             for device in session.scalars(stmt):
                 db_device = device
             if db_device is None:
-                db_device = Device(device=device_device, name=device_name)
+                db_device = Device()
             if device_device:
                 db_device.device = device_device
             if device_name:
