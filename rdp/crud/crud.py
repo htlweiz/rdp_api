@@ -94,31 +94,65 @@ class Crud:
             stmt = select(ValueType).where(ValueType.id == value_type_id)
             return session.scalars(stmt).one()
 
-    def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
-    ) -> List[Value]:
-        """Get Values from database.
+    def get_values_order_by_time_and_id(self, value_type_id: int = None, start: int = None, end: int = None) -> List[Value]:
+        """
+        Retrieve values from the database, ordered by value_type_id and time.
+        
+        Args:
+            value_type_id (int, optional): The ID of the value type to filter by.
+            start (int, optional): The start value for filtering by type_id.
+            end (int, optional): The end value for filtering by type_id.
+            
+        Returns:
+            List[Value]: A list of Value objects retrieved from the database, ordered by value_type_id and time.
+        """
+        
+        with Session(self._engine) as session:
+            query = session.query(Value).join(Value.value_type)
 
-        The result can be filtered by the following paramater:
+            if value_type_id is not None:
+                query = query.filter(ValueType.id == value_type_id)
+
+            if start is not None:
+                query = query.filter(Value.type_id >= start)
+
+            if end is not None:
+                query = query.filter(Value.type_id <= end)
+
+            # Sort in the desired order: value_type_id, time
+            query = query.order_by(Value.value_type_id, Value.time)
+
+            values = query.all()
+            return values
+
+
+    def get_values_order_by_id_and_value(self, value_type_id: int = None, start: int = None, end: int = None) -> List[Value]:
+        """
+        Retrieve a list of Value objects ordered by value_type_id and value.
 
         Args:
-            value_type_id (int, optional): If set, only value of this given type will be returned. Defaults to None.
-            start (int, optional): If set, only values with a timestamp as least as big as start are returned. Defaults to None.
-            end (int, optional): If set, only values with a timestamp as most as big as end are returned. Defaults to None.
+            value_type_id (int, optional): The ID of the value type to filter by. Defaults to None.
+            start (int, optional): The minimum value_type_id to filter by. Defaults to None.
+            end (int, optional): The maximum value_type_id to filter by. Defaults to None.
 
         Returns:
-            List[Value]: _description_
+            List[Value]: A list of Value objects ordered by value_type_id and value.
         """
         with Session(self._engine) as session:
-            stmt = select(Value)
-            if value_type_id is not None:
-                stmt = stmt.join(Value.value_type).where(ValueType.id == value_type_id)
-            if start is not None:
-                stmt = stmt.where(Value.time >= start)
-            if end is not None:
-                stmt = stmt.where(Value.time <= end)
-            stmt = stmt.order_by(Value.time)
-            logging.error(start)
-            logging.error(stmt)
+            query = session.query(Value).join(Value.value_type)
 
-            return session.scalars(stmt).all()
+            if value_type_id is not None:
+                query = query.filter(ValueType.id == value_type_id)
+
+            if start is not None:
+                query = query.filter(Value.value_type_id >= start)
+
+            if end is not None:
+                query = query.filter(Value.value_type_id <= end)
+
+            # Sort in the desired order: value_type_id, value
+            query = query.order_by(Value.value_type_id, Value.value)
+
+            values = query.all()
+            return values
+

@@ -71,8 +71,34 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.get("/value/")
-def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
-    """Get values from the database. The default is to return all available values. This result can be filtered.
+def get_values_order_by_time_and_id(type_id: int = None, start: int = None, end: int = None) -> List[ApiTypes.Value]:
+    """
+    Retrieve values based on specified type ID, start, and end times, ordered by time and ID.
+
+    Args:
+        type_id (int, optional): The type ID for filtering values. Defaults to None.
+        start (int, optional): The starting timestamp for filtering values. Defaults to None.
+        end (int, optional): The ending timestamp for filtering values. Defaults to None.
+
+    Returns:
+        List[ApiTypes.Value]: A list of Value objects ordered by time and ID.
+
+    Raises:
+        HTTPException: If no results are found, raises a 404 status code with an error message.
+    """
+    global crud
+    try:
+        values = crud.get_values_order_by_time_and_id(type_id, start, end)
+        return values
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+## Order Values by ID & Value ##
+
+#@app.get("/value/")
+#def get_values_order_by_id_and_value(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
+    """    Retrieve values based on specified type ID, start, and end times, ordered by time and ID.
 
     Args:
         type_id (int, optional): If set, only values of this type are returned. Defaults to None.
@@ -85,12 +111,13 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     Returns:
         List[ApiTypes.Value]: _description_
     """
-    global crud
-    try:
-        values = crud.get_values(type_id, start, end)
-        return values
-    except crud.NoResultFound:
-        raise HTTPException(status_code=404, deltail="Item not found")
+#    global crud
+#    try:
+#        values = crud.get_values_order_by_id_and_value(type_id, start, end)
+#        return values
+#    except crud.NoResultFound:
+#       raise HTTPException(status_code=404, deltail="Item not found")
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
