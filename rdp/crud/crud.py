@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device
 
 
 class Crud:
@@ -124,12 +124,31 @@ class Crud:
             return session.scalars(stmt).all()
 
 
-    def get_devices(self, id):
+    def get_device(self, id):
             
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == id)
             return session.scalars(stmt).one()
+    
 
+    def add_or_update_device(
+        self,
+        device_id: int = None,
+        device_name: str = None,
+    ) -> None:
 
-
-
+        logging.error("select statement worked!")
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            db_device = None
+            for device in session.scalars(stmt):
+                db_device = device
+            if db_device is None:
+                db_device = Device(id=device_id)
+            if device_name:
+                db_device.name = device_name
+            elif not db_device.name:
+               db_device.name = "Device_%d" % device_id
+            session.add_all([db_device])
+            session.commit()
+            return db_device

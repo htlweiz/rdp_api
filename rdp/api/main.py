@@ -71,7 +71,7 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.get("/value/")
-def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
+def get_device(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
 
     Args:
@@ -113,31 +113,22 @@ async def startup_event():
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
 
-@app.put("/device/{name}/")
-def put_device(name, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
+@app.get("/device/{id}")
+def get_device(id:int=None) -> ApiTypes.DeviceNoID: 
     global crud
     try:
-        crud.add_or_update_device(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
-        return read_type(id)
-    except crud.NoResultFound:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-@app.get("/device/{device_id}")
-def get_values(device_id:int=None) -> List[ApiTypes.Value]: 
-    global crud
-    try:
-        device = crud.get_devices(device_id)
+        device = crud.get_device(id)
         return device
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
-@app.put("/value/{device_id}/")
-def put_device(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
+@app.put("/device/{id}")
+def put_device(id, device_name: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     global crud
+    logging.error("select statement worked!")
     try:
-        crud.add_or_update_value_device(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
-        return read_type(id)
+        crud.add_or_update_device(id, device_name.name)
+        return get_device(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-
 
