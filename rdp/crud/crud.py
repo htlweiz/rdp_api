@@ -11,37 +11,133 @@ from .model import Base, Value, ValueType
 class Command(ABC):
     @abstractmethod
     def execute(self, stmt):
+        """Execute the command on the given statement.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement after executing the command.
+        """
         pass
 
 class GetValueTypeId(Command):
     def __init__(self, value_type_id):
+        """Initialize with value type ID.
+
+        Args:
+            value_type_id (int): The ID of the value type.
+        """
         self.value_type_id = value_type_id
 
     def execute(self, stmt):
+        """Join with Value type and filter by value type ID.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement after joining and filtering.
+        """
         return stmt.join(Value.value_type).where(ValueType.id == self.value_type_id)
+
+class ValueTypeSorted(Command):
+    def execute(self, stmt):
+        """Order the statement by value type ID.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement ordered by value type ID.
+        """
+        return stmt.order_by(Value.value_type_id)
 
 class GetTimeStart(Command):
     def __init__(self, start):
+        """Initialize with start time.
+
+        Args:
+            start (int): The start time.
+        """
         self.start = start
 
     def execute(self, stmt):
+        """Filter the statement by time greater than or equal to start.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement filtered by start time.
+        """
         return stmt.where(Value.time >= self.start)
 
 class GetTimeEnd(Command):
     def __init__(self, end):
+        """Initialize with end time.
+
+        Args:
+            end (int): The end time.
+        """
         self.end = end
 
     def execute(self, stmt):
+        """Filter the statement by time less than or equal to end.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement filtered by end time.
+        """
         return stmt.where(Value.time <= self.end)
+
+class TimeDescending(Command):
+    def execute(self, stmt):
+        """Order the statement by time in descending order.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement ordered by time in descending order.
+        """
+        return stmt.order_by(Value.time.desc())
+
+class TimeAscending(Command):
+    def execute(self, stmt):
+        """Order the statement by time in ascending order.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement ordered by time in ascending order.
+        """
+        return stmt.order_by(Value.time.asc())
 
 class Invoker:
     def __init__(self):
         self.commands = []
 
     def add_command(self, command):
+        """Add a command to the list of commands.
+
+        Args:
+            command (Command): The command to be added.
+        """
         self.commands.append(command)
 
     def execute_commands(self, stmt):
+        """Execute all commands on the given statement.
+
+        Args:
+            stmt: The SQL statement to be executed.
+
+        Returns:
+            Modified SQL statement after executing all commands.
+        """
         for command in self.commands:
             stmt = command.execute(stmt)
         return stmt
@@ -148,16 +244,24 @@ class Crud:
         """
         invoker = Invoker()
 
+        start_commands = {
+            1: TimeAscending,
+            2: TimeDescending,
+            3: ValueTypeSorted
+        }
+
         if value_type_id is not None:
             invoker.add_command(GetValueTypeId(value_type_id))
         if start is not None:
             invoker.add_command(GetTimeStart(start))
+            command = start_commands.get(start)
+            if command:
+                invoker.add_command(command())
         if end is not None:
             invoker.add_command(GetTimeEnd(end))
-
+                
         with Session(self._engine) as session:
             stmt = select(Value)
             stmt = invoker.execute_commands(stmt)
-            stmt = stmt.order_by(Value.time)
 
             return session.scalars(stmt).all()

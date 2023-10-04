@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger("rdp.api")
 app = FastAPI()
 
-@app.get("/")
+@app.get("/d")
 def read_root() -> ApiTypes.ApiDescription:
     """This url returns a simple description of the api
 

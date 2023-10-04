@@ -1,5 +1,5 @@
 import pytest
-from rdp.crud.crud import Crud
+from rdp.crud.crud import Crud, ValueTypeSorted, TimeAscending, TimeDescending
 from rdp.crud.model import ValueType, Value, Base
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
@@ -92,7 +92,71 @@ def test_get_values(crud_session):
     with Session() as session:
         crud_session.add_or_update_value_type(value_type_id=5, value_type_name="Humidity", value_type_unit="%")
         crud_session.add_value(value_time=1631692900, value_type=5, value_value=60)
-        values = crud_session.get_values(value_type_id=5, start=1631692800, end=1631693000)
+        values = crud_session.get_values(value_type_id=5, start=1, end=1631693000)
 
         assert len(values) == 1
         assert values[0].value == 60
+
+@pytest.fixture(scope="function")
+def test_sorted_type_id_command(crud_session):
+    Session = sessionmaker(bind=crud_session._engine)
+
+    with Session() as session:
+        crud_session.add_or_update_value_type(value_type_id=2, value_type_name="Temperature", value_type_unit="C")
+        crud_session.add_value(value_time=1631692900, value_type=1, value_value=25)
+
+        crud_session.add_or_update_value_type(value_type_id=1, value_type_name="Humidity", value_type_unit="%")
+        crud_session.add_value(value_time=1631692934, value_type=2, value_value=60)
+
+        command = ValueTypeSorted()
+        stmt = select(Value)
+        stmt = command.execute(stmt)
+
+        results = session.scalars(stmt).all()
+
+        assert len(results) == 2
+        assert results[0].value_type_id == 1
+        assert results[1].value_type_id == 2
+
+@pytest.fixture(scope="function")
+def test_time_ascending_command(crud_session):
+    Session = sessionmaker(bind=crud_session._engine)
+
+    with Session() as session:
+        crud_session.add_or_update_value_type(value_type_id=2, value_type_name="Temperature", value_type_unit="C")
+        crud_session.add_value(value_time=1631692900, value_type=1, value_value=25)
+
+        crud_session.add_or_update_value_type(value_type_id=1, value_type_name="Humidity", value_type_unit="%")
+        crud_session.add_value(value_time=1631692934, value_type=2, value_value=60)
+
+        command = TimeAscending()
+        stmt = select(Value)
+        stmt = command.execute(stmt)
+
+        results = session.scalars(stmt).all()
+
+        assert len(results) == 2
+        assert results[0].value_type_id == 1631692934
+        assert results[1].value_type_id == 1631692900
+
+@pytest.fixture(scope="function")
+def test_time_descending_command(crud_session):
+    Session = sessionmaker(bind=crud_session._engine)
+
+    with Session() as session:
+        crud_session.add_or_update_value_type(value_type_id=2, value_type_name="Temperature", value_type_unit="C")
+        crud_session.add_value(value_time=1631692900, value_type=1, value_value=25)
+
+        crud_session.add_or_update_value_type(value_type_id=1, value_type_name="Humidity", value_type_unit="%")
+        crud_session.add_value(value_time=1631692934, value_type=2, value_value=60)
+
+        command = TimeAscending()
+        stmt = select(Value)
+        stmt = command.execute(stmt)
+
+        results = session.scalars(stmt).all()
+
+        assert len(results) == 2
+        assert results[0].value_type_id == 1631692900
+        assert results[1].value_type_id == 1631692934
+
