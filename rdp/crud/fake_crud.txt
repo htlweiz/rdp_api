@@ -41,7 +41,7 @@ def add_or_update_device(
                 stmt = select(Device).where(Device.id == device_id)
             return session.scalars(stmt).one()
 
-    def get_valued_by_device(self, device_id:int = None, type_id:int = None) -> List[Value]:
+    def get_valued_by_device_id(self, device_id:int = None, type_id:int = None) -> List[Value]:
         """_summary_
 
         Args:

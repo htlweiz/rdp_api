@@ -37,7 +37,7 @@ class Value(Base):
     device: Mapped["Device"] = relationship(back_populates="devices")
 
     __table_args__ = (
-        UniqueConstraint("time", "value_type_id", "device_id", name="value integrity"),
+        UniqueConstraint("time", "value_type_id", "device_id", name="value integrity"), 
     )
 
     def __repr__(self) -> str:
@@ -45,7 +45,7 @@ class Value(Base):
 
 class Device(Base):
     __tablename__ = "device"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column()
 
     devices: Mapped[List["Value"]] = relationship(

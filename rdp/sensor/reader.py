@@ -2,6 +2,7 @@ import logging
 import struct
 import threading
 import time
+import random
 
 from rdp.crud import Crud
 
@@ -48,7 +49,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0], ) # device_id)
+                    self._crud.add_value(value_time, type_num, value[0], random.randint(0, 4)) # change it to a new device_id
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break
@@ -57,3 +58,4 @@ class Reader:
             if count % 100 == 0:
                 logger.info("read 100 values")
                 count = 0
+        

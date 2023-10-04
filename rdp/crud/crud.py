@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device
 
 
 class Crud:
@@ -95,7 +95,8 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
+        self, value_type_id: int = None, start: int = None, 
+        end: int = None, device_id: int = None
     ) -> List[Value]:
         """Get Values from database.
 
@@ -127,4 +128,65 @@ class Crud:
 
     START"""
 
-    
+    def add_or_update_device(
+        self, 
+        device_id: int = None, 
+        device_name: str = None 
+    ) -> None:
+        """_summary_
+
+        Args:
+            device_id (int, optional): _description_. Defaults to None.
+            device_name (str, optional): _description_. Defaults to None.
+        """
+        print()
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            db_type = None
+            for type in session.scalars(stmt):
+                db_type = type
+            if db_type is None:
+                db_type = Device(id=device_id)
+            if device_name:
+                db_type.name = device_name
+            elif not db_type.device_name:
+                db_type.device_name = "NONAME_%d" % device_id
+            session.add_all([db_type])
+            session.commit()
+            return db_type
+
+    def get_device(self, device_id:int = None, type_id:int = None) -> Device:
+        """_summary_
+
+        Args:
+            device_id (int, optional): _description_. Defaults to None.
+            type_id (int, optional): _description_. Defaults to None.
+
+        Returns:
+            List[Device]: _description_
+        """
+        logging.error("getting device")
+        with Session(self._engine) as session:
+            if device_id is not None:
+                stmt = select(Device).where(Device.id == device_id)
+                logging.error(session.scalars(stmt).one())
+            return session.scalars(stmt).one()
+
+    def get_values_by_device_id(self, device_id:int = None) -> List[Value]:
+        """_summary_
+
+        Args:
+            device_id (int, optional): _description_. Defaults to None.
+            type_id (int, optional): _description_. Defaults to None.
+
+        Returns:
+            List[Value]: _description_
+        """
+        print()
+        logging.warning(device_id)
+        with Session(self._engine) as session:
+            if device_id is not None:
+                logging.error("searching...")
+                stmt = select(Value).where(Value.device_id == device_id)
+                logging.error(session.scalars(stmt).all())
+            return session.scalars(stmt).all()

@@ -93,8 +93,8 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
         raise HTTPException(status_code=404, deltail="Item not found")
 
 
-@app.put("/device/{name}/")
-def put_device(id, device_name: ApiTypes.Device) -> ApiTypes.Device:
+@app.put("/device/{id}/")
+def put_device(id, device_name: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """PUT request to add a device. This api call is used to add a device with a name.
 
     Args:
@@ -104,16 +104,16 @@ def put_device(id, device_name: ApiTypes.Device) -> ApiTypes.Device:
     Returns:
         ApiTypes.Value: _description_
     """
-    # global crud
+    global crud
     try:
-        # crud.add_or_update_device(id, device_name=device_name.device_name)
-        # return read_type(id)
-        return 42
+        crud.add_or_update_device(id, device_name=device_name.name)
+        return get_device(id)
+        # return 42
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get("/device/{id}/")
-def get_device(id:int=None) -> List[ApiTypes.Device]:
+@app.get("/device/{id}")
+def get_device(id:int=None) -> ApiTypes.Device:
     """_summary_
 
     Args:
@@ -123,19 +123,30 @@ def get_device(id:int=None) -> List[ApiTypes.Device]:
         List[ApiTypes.Devices]: _description_
     """
     global crud
-    #try:
-    #    crud.get_device()
-    #except:
-    return 0
+    try:
+        device = crud.get_device(id)
+        return device
+    except:
+        return 0
 
-"""@app.get("/device/{id}/{type_id}/")
-def get_valued_by_device(device_id:int=None, type_id:int=None) -> List[ApiTypes.Value]:
-    pass
+"""@app.put("/device/{id}/{type_id}/")
+def put_values_by_device_and_type(device_id:int=None, type_id:int=None) -> List[ApiTypes.Value]:
+    global crud
+    try:
+        values = crud.
+"""        
 
-@app.put("/value/{device_id}/")
-def put_value_by_device() -> ApiTypes.Value:
-    pass
-"""
+@app.get("/value/{device_id}/")
+def get_values_by_device_id(device_id:int=None) -> List[ApiTypes.Value]:
+    global crud
+    try:
+        logging.error("searching...")
+        values = crud.get_values_by_device_id(device_id)
+        return values
+    except:
+        logging.error("failed...")
+        return 0
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
