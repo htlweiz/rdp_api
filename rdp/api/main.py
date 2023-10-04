@@ -98,7 +98,7 @@ def get_values_order_by_time_and_id(type_id: int = None, start: int = None, end:
 
 #@app.get("/value/")
 #def get_values_order_by_id_and_value(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
-    """    Retrieve values based on specified type ID, start, and end times, ordered by time and ID.
+    """    Retrieve values based on specified type ID, start, and end times, ordered by value and ID.
 
     Args:
         type_id (int, optional): If set, only values of this type are returned. Defaults to None.

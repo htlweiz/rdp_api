@@ -1,4 +1,4 @@
-"""Test the get_values_method from crud."""
+"""Test the get_values_order_by_id_and_value method from crud."""
 
 import pytest
 from sqlalchemy import create_engine
