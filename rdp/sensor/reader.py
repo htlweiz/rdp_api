@@ -49,7 +49,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0], random.randint(0, 4)) # change it to a new device_id
+                    self._crud.add_value(value_time, type_num, value[0], random.randint(1, 4)) # change it to a new device_id
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break
