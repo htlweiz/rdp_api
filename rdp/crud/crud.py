@@ -49,6 +49,7 @@ class Crud:
                 db_type.type_unit = "UNIT_%d" % value_type_id
             session.add_all([db_type])
             session.commit()
+            print("asd")
             return db_type
 
     def add_value(
@@ -77,10 +78,11 @@ class Crud:
 
     def add_or_update_device(
         self, device_id: int = None, device_device: str = None, device_name: str = None
-    ) -> None:
+    ) -> Device:
+        db_device = None
+        tmp_device = device_device
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == device_id)
-            db_device = None
             for device in session.scalars(stmt):
                 db_device = device
             if db_device is None:
@@ -90,11 +92,14 @@ class Crud:
             if device_name:
                 db_device.name = device_name
             session.add(db_device)
+            tmp_device = db_device.device
             try:
                 session.commit()
             except IntegrityError:
                 logging.error("Integrity")
                 raise
+        stmt = select(Device).where(Device.device == tmp_device)
+        return session.scalars(stmt).one()
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
