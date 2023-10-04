@@ -45,7 +45,7 @@ class Value(Base):
 class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True)
-    device_name: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column()
 
     def __repr__(self) -> str:
         return f"Value(id={self.id!r}, name={self.name!r})"

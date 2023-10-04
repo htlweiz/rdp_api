@@ -123,14 +123,17 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_devices(self) -> List[Device]:
+    def get_device(self, id=None) -> List[Device]:
         """Get all configured devices
 
         Returns:
             List[Device]: List of Device objects. 
         """
         with Session(self._engine) as session:
-            stmt = select(Device)
+            if id:
+                stmt = select(Device)
+            else:
+                stmt = select(Device).where(Device.id == id)
             return session.scalars(stmt).all()
 
     def add_or_update_device(
@@ -149,16 +152,17 @@ class Crud:
             _type_: _description_
         """
         with Session(self._engine) as session:
-            stmt = select(ValueType).where(ValueType.id == device_id)
+            stmt = select(Device).where(Device.id == device_id)
             db_device = None
             for device in session.scalars(stmt):
                 db_device = device
-            if device_id is None:
-                db_device = Device(id=device_id)
+            if db_device is None:
+                db_device = Device()
             if device_name:
                 db_device.name = device_name
-            elif not db_device.device_name:
-                db_device.device_name = "TYPE_%d" % device_id
-            session.add_all([db_device])
-            session.commit()
+            session.add(db_device)
+            try:
+                session.commit()
+            except:
+                return "fail"
             return db_device

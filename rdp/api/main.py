@@ -92,18 +92,28 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
-@app.get("/devices/")
-def read_devices() -> List[ApiTypes.Device]:
+@app.get("/device/")
+def read_device() -> List[ApiTypes.Device]:
     """Implements the get of all devices
 
     Returns:
         List[ApiTypes.Device]: list of available devices. 
     """
     global crud
-    return crud.get_devices()
+    return crud.get_device()
 
-@app.put("/device/{value}/")
-def put_device(value, id=None, name=None) -> str:
+@app.get("/device/{id}/")
+def read_device(id) -> List[ApiTypes.Device]:
+    """Implements the get of all devices
+
+    Returns:
+        List[ApiTypes.Device]: list of available devices. 
+    """
+    global crud
+    return crud.get_device(id=id)
+
+@app.put("/device/{id}/")
+def put_device(id, device: ApiTypes.Device) -> ApiTypes.Device:
     """PUT request to add a new device entry.
 
     Args:
@@ -116,18 +126,16 @@ def put_device(value, id=None, name=None) -> str:
         str: "Success" if the device entry is successfully added.
     """
     global crud
-    if type(value) == int:
-        id = value
     try:
-        crud.add_or_update_device(device_name=name)
-        return "Success"
+        crud.add_or_update_device(device_id=device.id, device_name=device.name)
+        return read_device(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader
-    """    
+    """
     logger.info("STARTUP: Sensor reader!")
     global reader, crud
     engine = create_engine("sqlite:///rdb.test.db")
