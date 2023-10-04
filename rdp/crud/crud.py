@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device
 
 
 class Crud:
@@ -122,3 +122,63 @@ class Crud:
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+
+    def get_device_id(self, device_id: int) -> Device:
+        """Get a special ValueType
+
+        Args:
+            value_type_id (int): the primary key of the ValueType
+
+        Returns:
+            ValueType: The ValueType object
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            return session.scalars(stmt).one()
+
+    def add_or_update_device(
+        self,
+        device_id: int = None,
+        device_name: str = None,
+        device_device: str = None,
+
+    ) -> Device:
+        """update or add a device
+
+        Args:
+            id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
+            name (str, optional): Typename wich should be set or updated. Defaults to None.
+            device (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            db_device = None
+            for device in session.scalars(stmt):
+                db_device = device
+            if db_device is None:
+                db_device = Device(device=device_device, name=device_name)
+            if device_device:
+                db_device.device = device_device
+            if device_name:
+                db_device_name = device_name
+            session.add(db_device)
+            tmp_device = db_device.device
+
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+            stmt = select(Device).where(Device.device == tmp_device)
+            return session.scalars(stmt).one()
+
+    def get_device_by_id(self, session: Session, device_id: int):
+        device = session.query(Device).filter(Device.id == device_id).first()
+        if device is None:
+            raise HTTPException(status_code=404, detail="Device not found")
+        return device
+

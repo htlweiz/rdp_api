@@ -12,7 +12,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root() -> ApiTypes.ApiDescription:
-    """This url returns a simple description of the api
+    """This url returns a simple description of the api dick 
 
     Returns:
         ApiTypes.ApiDescription: the Api description in json format 
@@ -70,6 +70,66 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
+
+@app.get("/device/{id}/")
+def read_device(id: int) -> ApiTypes.Device:
+    """returns an explicit value type identified by id
+
+    Args:
+        id (int): primary key of the desired value type
+
+    Raises:
+        HTTPException: Thrown it a value type with the given id cannot be accessed
+
+    Returns:
+        ApiTypes.ValueType: the desired value type 
+    """
+    global crud
+    try:
+         return crud.get_device_id(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found") 
+    return value_type 
+
+
+@app.put("/device/{id}/")
+def put_device(id,device: ApiTypes.Device)-> ApiTypes.Device:
+    """PUT request to a specail devicename. This api call is used to put a device name.
+
+    Args:
+        id int: device id
+ 
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Device: the requested value type after persisted in the database. 
+    """
+    global crud
+    try:
+        crud.add_or_update_device(id, device_name=device.name, device_device=device.device)
+        return read_device(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+
+@app.get("/device/")
+def get_device_by_id(id:int=None, name:int=None, device:int=None) -> List[ApiTypes.Device]:
+    global crud
+    try:
+        values = crud.get_device_by_id(type_id, start, end)
+        return values
+
+
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
+
+
+
+
 @app.get("/value/")
 def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
@@ -91,6 +151,7 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
         return values
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
