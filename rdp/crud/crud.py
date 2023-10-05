@@ -5,12 +5,13 @@ from abc import ABC, abstractmethod
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.selectable import Select
 
 from .model import Base, Value, ValueType
 
 class Command(ABC):
     @abstractmethod
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Execute the command on the given statement.
 
         Args:
@@ -30,7 +31,7 @@ class GetValueTypeId(Command):
         """
         self.value_type_id = value_type_id
 
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Join with Value type and filter by value type ID.
 
         Args:
@@ -42,7 +43,7 @@ class GetValueTypeId(Command):
         return stmt.join(Value.value_type).where(ValueType.id == self.value_type_id)
 
 class ValueTypeSorted(Command):
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Order the statement by value type ID.
 
         Args:
@@ -54,7 +55,7 @@ class ValueTypeSorted(Command):
         return stmt.order_by(Value.value_type_id)
 
 class GetTimeStart(Command):
-    def __init__(self, start):
+    def __init__(self, start: int):
         """Initialize with start time.
 
         Args:
@@ -62,7 +63,7 @@ class GetTimeStart(Command):
         """
         self.start = start
 
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Filter the statement by time greater than or equal to start.
 
         Args:
@@ -74,7 +75,7 @@ class GetTimeStart(Command):
         return stmt.where(Value.time >= self.start)
 
 class GetTimeEnd(Command):
-    def __init__(self, end):
+    def __init__(self, end: int):
         """Initialize with end time.
 
         Args:
@@ -82,7 +83,7 @@ class GetTimeEnd(Command):
         """
         self.end = end
 
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Filter the statement by time less than or equal to end.
 
         Args:
@@ -94,7 +95,7 @@ class GetTimeEnd(Command):
         return stmt.where(Value.time <= self.end)
 
 class TimeDescending(Command):
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Order the statement by time in descending order.
 
         Args:
@@ -106,7 +107,7 @@ class TimeDescending(Command):
         return stmt.order_by(Value.time.desc())
 
 class TimeAscending(Command):
-    def execute(self, stmt):
+    def execute(self, stmt: Select) -> Select:
         """Order the statement by time in ascending order.
 
         Args:
@@ -121,7 +122,7 @@ class Invoker:
     def __init__(self):
         self.commands = []
 
-    def add_command(self, command):
+    def add_command(self, command) -> None:
         """Add a command to the list of commands.
 
         Args:
@@ -129,7 +130,7 @@ class Invoker:
         """
         self.commands.append(command)
 
-    def execute_commands(self, stmt):
+    def execute_commands(self, stmt: Select) -> Select:
         """Execute all commands on the given statement.
 
         Args:
@@ -229,7 +230,7 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None):
+        self, value_type_id: int = None, start: int = None, end: int = None) -> List[ValueType]:
         """Get Values from database.
 
         The result can be filtered by the following paramater:
