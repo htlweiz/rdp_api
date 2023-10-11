@@ -112,3 +112,26 @@ async def startup_event():
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
+
+@app.get("/device/{id}")
+def get_device(id) -> ApiTypes.Device:
+    global crud
+    try:
+        return crud.get_device(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/device/{id}/")
+def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    global crud
+    try:
+        device = crud.add_or_update_device(
+            id, device_device=device.device, device_name=device.name
+        )
+        return get_device(device.id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
