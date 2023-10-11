@@ -123,30 +123,31 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_device(self, id=None) -> List[Device]:
+    def get_device(self, device_id=None) -> List[Device]:
         """Get all configured devices
 
         Returns:
             List[Device]: List of Device objects. 
         """
         with Session(self._engine) as session:
-            if id:
+            if device_id == None:
                 stmt = select(Device)
+                return session.scalars(stmt).all()
             else:
-                stmt = select(Device).where(Device.id == id)
-            return session.scalars(stmt).all()
+                stmt = select(Device).where(Device.id == device_id)
+                return session.scalars(stmt).one()
+
 
     def add_or_update_device(
         self,
         device_id: int = None,
         device_name: str = None
     ) -> None:
-        """update or add a value type
+        """update or add a device
 
         Args:
-            value_type_id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
-            value_type_name (str, optional): Typename wich should be set or updated. Defaults to None.
-            value_type_unit (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_name (str, optional): Devicename wich should be set or updated. Defaults to None.
 
         Returns:
             _type_: _description_
@@ -157,12 +158,11 @@ class Crud:
             for device in session.scalars(stmt):
                 db_device = device
             if db_device is None:
-                db_device = Device()
+                db_device = Device(id=device_id)
             if device_name:
                 db_device.name = device_name
-            session.add(db_device)
-            try:
-                session.commit()
-            except:
-                return "fail"
+            elif not db_device.name:
+                db_device.name = "TYPE_%d" % device_id
+            session.add_all([db_device])
+            session.commit()
             return db_device

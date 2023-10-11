@@ -48,4 +48,4 @@ class Device(Base):
     name: Mapped[str] = mapped_column()
 
     def __repr__(self) -> str:
-        return f"Value(id={self.id!r}, name={self.name!r})"
+        return f"Device(id={self.id!r}, name={self.name!r})"

@@ -103,31 +103,32 @@ def read_device() -> List[ApiTypes.Device]:
     return crud.get_device()
 
 @app.get("/device/{id}/")
-def read_device(id) -> List[ApiTypes.Device]:
+def read_device(id) -> ApiTypes.Device:
     """Implements the get of all devices
 
     Returns:
         List[ApiTypes.Device]: list of available devices. 
     """
     global crud
-    return crud.get_device(id=id)
+    return crud.get_device(id)
 
 @app.put("/device/{id}/")
-def put_device(id, device: ApiTypes.Device) -> ApiTypes.Device:
-    """PUT request to add a new device entry.
+def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    """PUT request to a specail device. This api call is used to change a device object.
 
     Args:
-        name (str): The name of the new device to be added.
+        id (int): primary key of the requested value type
+        name (ApiTypes.ValueTypeNoID): json object representing the new state of the value type. 
 
     Raises:
-        HTTPException: Thrown if there is an issue adding the new device entry.
+        HTTPException: Thrown if a value type with the given id cannot be accessed 
 
     Returns:
-        str: "Success" if the device entry is successfully added.
+        ApiTypes.ValueType: the requested value type after persisted in the database. 
     """
     global crud
     try:
-        crud.add_or_update_device(device_id=device.id, device_name=device.name)
+        crud.add_or_update_device(device_id=id, device_name=device.name)
         return read_device(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")

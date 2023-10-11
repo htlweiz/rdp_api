@@ -20,6 +20,8 @@ class ApiDescription(BaseModel):
     value_type_link : str = "/type"
     value_link : str = "/value"
 
-class Device(BaseModel):
+class DeviceNoID(BaseModel):
+    name: str = "TEST"
+    
+class Device(DeviceNoID):
     id: int
-    name: str
