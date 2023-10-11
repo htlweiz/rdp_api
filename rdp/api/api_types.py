@@ -25,3 +25,9 @@ class DeviceNoID(BaseModel):
 
 class Device(DeviceNoID):
     id: int
+
+class RoomNoID(BaseModel):
+    name: str
+
+class Room(RoomNoID):
+    id: int

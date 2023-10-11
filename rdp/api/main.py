@@ -131,4 +131,23 @@ def put_device(id, device_name: ApiTypes.DeviceNoID) -> ApiTypes.Device:
         return get_device(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
+        
 
+@app.put("/room/{id}")
+def put_room(id, room_name: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    global crud
+    try:
+        crud.add_or_update_room(id, room_name.name)
+        return get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.get("/room/{id}")
+def get_room(id:int=None) -> ApiTypes.RoomNoID: 
+    global crud
+    try:
+        room = crud.get_room(id)
+        return room
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")

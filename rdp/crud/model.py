@@ -48,3 +48,11 @@ class Device(Base):
 
     def __repr__(self) -> str:
         return f"Device(id={self.id!r}), device_name={self.name!r}"
+
+class Room(Base):
+    __tablename__ = "room"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self) -> str:
+        return f"Room(id={self.id!r}), room_name={self.name!r}"

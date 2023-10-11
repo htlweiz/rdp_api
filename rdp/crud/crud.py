@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device
+from .model import Base, Value, ValueType, Device, Room
 
 
 class Crud:
@@ -152,3 +152,33 @@ class Crud:
             session.add_all([db_device])
             session.commit()
             return db_device
+
+
+    def get_room(self, id):
+            
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == id)
+            return session.scalars(stmt).one()
+    
+
+    def add_or_update_room(
+        self,
+        room_id: int = None,
+        room_name: str = None,
+    ) -> None:
+
+        logging.error("select statement worked!")
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            db_room = None
+            for room in session.scalars(stmt):
+                db_room = room
+            if db_room is None:
+                db_room = Room(id=room_id)
+            if room_name:
+                db_room.name = room_name
+            elif not db_room.name:
+               db_room.name = "Room_%d" % room_id
+            session.add_all([db_room])
+            session.commit()
+            return db_room
