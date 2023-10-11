@@ -126,7 +126,7 @@ def post_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
 
 @app.put("/device/{id}/")
 def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
-    """PUT device: Add device or update device of id.
+    """PUT device: Update device of id.
 
     Args:
         id int: device id
@@ -213,12 +213,31 @@ def get_room(id) -> ApiTypes.Room:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.put("/room/{id}/")
-def put_room(device: ApiTypes.RoomNoID, id=None) -> ApiTypes.Room:
-    """PUT room: Add room or update room of id.
+@app.get("/room/")
+def get_rooms(room_group_id: int = None) -> List[ApiTypes.Room]:
+    """Get rooms from the database.
+    Args:
+        room_group_id int: room group id to find all rooms that are children from this group.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        List[ApiTypes.Room]: A list of rooms in the database.
+    """
+    global crud
+    try:
+        return crud.get_rooms(room_group_id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.post("/room/")
+def post_room(room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """POST room: Add room.
 
     Args:
-        id int: room id
+        room (ApiTypes.RoomNoID): json object representing the new state of the room.
 
     Raises:
         HTTPException
@@ -229,11 +248,133 @@ def put_room(device: ApiTypes.RoomNoID, id=None) -> ApiTypes.Room:
     """
     global crud
     try:
-        room = crud.add_or_update_room(id, room_name=device.name)
-        return get_room(room.id)
+        return crud.add_or_update_room(
+            room_name=room.name, room_group_id=room.room_group_id
+        )
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-    except crud.IntegrityError as e:
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
+@app.put("/room/{id}/")
+def put_room(id: int, room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """PUT room: Update room of id.
+
+    Args:
+        id int: room id
+        room (ApiTypes.RoomNoID): json object representing the new state of the room.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Room: A room in the database.
+
+    """
+    global crud
+    try:
+        return crud.add_or_update_room(
+            id, room_name=room.name, room_group_id=room.room_group_id
+        )
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
+@app.get("/room-group/{id}")
+def get_room_group(id) -> ApiTypes.RoomGroup:
+    """Get specific room group from the database with the specified id.
+    Args:
+        id int: room group id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.RoomGroup: A room group in the database.
+    """
+    global crud
+    try:
+        return crud.get_room_group(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.get("/room-group/")
+def get_room_groups() -> List[ApiTypes.RoomGroup]:
+    """Get all room groups from the database.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        List[ApiTypes.RoomGroup]: List of all room groups in the database.
+    """
+    global crud
+    try:
+        return crud.get_room_groups()
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.post("/room-group/")
+def post_room_group(room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.RoomGroup:
+    """POST room group: Add room group.
+
+    Args:
+        room_group (ApiTypes.RoomGroupNoID): json object representing the new state of the room group.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.RoomGroup: A room group in the database.
+
+    """
+    global crud
+    try:
+        return crud.add_or_update_room_group(
+            room_group_name=room_group.name, parent_group_id=room_group.room_group_id
+        )
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
+@app.put("/room-group/{id}/")
+def put_room_group(id: int, room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.RoomGroup:
+    """PUT room group: Update room group of id.
+
+    Args:
+        id int: room id
+        room_group (ApiTypes.RoomGroupNoID): json object representing the new state of the room group.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.RoomGroup: A room group in the database.
+
+    """
+    global crud
+    try:
+        return crud.add_or_update_room_group(
+            id,
+            room_group_name=room_group.name,
+            parent_group_id=room_group.room_group_id,
+        )
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
         raise HTTPException(
             status_code=400,
         )

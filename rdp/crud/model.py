@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import ForeignKey, UniqueConstraint
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, backref
 
 
 class Base(DeclarativeBase):
@@ -61,7 +61,8 @@ class Room(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     room_group_id: Mapped[int] = mapped_column(
-        ForeignKey("room_group.id"), nullable=True
+        ForeignKey("room_group.id"),
+        nullable=True,
     )
 
     room_group: Mapped["RoomGroup"] = relationship(back_populates="rooms")
@@ -74,7 +75,13 @@ class RoomGroup(Base):
     __tablename__ = "room_group"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
+    room_group_id: Mapped[int] = mapped_column(
+        ForeignKey("room_group.id"), nullable=True
+    )
 
+    room_groups: Mapped[List["RoomGroup"]] = relationship(
+        backref=backref("parent", remote_side=[id])
+    )
     rooms: Mapped[List["Room"]] = relationship(
         back_populates="room_group", cascade="all, delete-orphan"
     )

@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device, Room
+from .model import Base, Value, ValueType, Device, Room, RoomGroup
 
 
 class Crud:
@@ -76,7 +76,11 @@ class Crud:
                 raise
 
     def add_or_update_device(
-        self, device_id: int = None, device_device: str = None, device_name: str = None
+        self,
+        device_id: int = None,
+        device_device: str = None,
+        device_name: str = None,
+        room_id: int = None,
     ) -> Device:
         new_id = None
         with Session(self._engine) as session:
@@ -94,6 +98,8 @@ class Crud:
                 db_device.device = device_device
             if device_name:
                 db_device.name = device_name
+            if room_id:
+                db_device.room_id = room_id
             session.add(db_device)
             try:
                 session.commit()
@@ -104,22 +110,66 @@ class Crud:
             new_id = db_device.id
         return self.get_device(new_id)
 
-    def add_or_update_room(self, room_id, room_name) -> Room:
+    def add_or_update_room(
+        self, room_id: int = None, room_name: str = None, room_group_id: int = None
+    ) -> Room:
         new_id = None
         with Session(self._engine) as session:
-            stmt = select(Room).where(Room.id == room_id)
             db_room = None
-            for room in session.scalars(stmt):
-                db_room = room
+            if room_id is not None:
+                stmt = select(Room).where(Room.id == room_id)
+                for room in session.scalars(stmt):
+                    db_room = room
+                if db_room is None:
+                    logging.error(f"Room with id:{room_id} does not exist.")
+                    raise NoResultFound()
             if db_room is None:
                 db_room = Room()
             if room_name:
                 db_room.name = room_name
+            if room_group_id:
+                db_room.room_group_id = room_group_id
             session.add(db_room)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
             session.refresh(db_room)
             new_id = db_room.id
         return self.get_room(new_id)
+
+    def add_or_update_room_group(
+        self,
+        room_group_id: int = None,
+        room_group_name: str = None,
+        parent_group_id: int = None,
+    ) -> Room:
+        new_id = None
+        with Session(self._engine) as session:
+            db_room_group = None
+            if room_group_id is not None:
+                stmt = select(RoomGroup).where(RoomGroup.id == room_group_id)
+                for room_group in session.scalars(stmt):
+                    db_room_group = room_group
+                if db_room_group is None:
+                    logging.error(f"Room with id:{room_group_id} does not exist.")
+                    raise NoResultFound()
+            if db_room_group is None:
+                db_room_group = RoomGroup()
+            if room_group_name:
+                db_room_group.name = room_group_name
+            if parent_group_id:
+                db_room_group.room_group_id = parent_group_id
+            session.add(db_room_group)
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+            session.refresh(db_room_group)
+            new_id = db_room_group.id
+        return self.get_room_group(new_id)
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
@@ -194,7 +244,24 @@ class Crud:
             stmt = select(Device)
             return session.scalars(stmt).all()
 
+    def get_rooms(self, room_group_id: int = None):
+        with Session(self._engine) as session:
+            stmt = select(Room)
+            if room_group_id:
+                stmt = stmt.where(RoomGroup.room_group_id == room_group_id)
+            return session.scalars(stmt).all()
+
     def get_room(self, id: int):
         with Session(self._engine) as session:
             stmt = select(Room).where(Room.id == id)
+            return session.scalars(stmt).one()
+
+    def get_room_groups(self):
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup)
+            return session.scalars(stmt).all()
+
+    def get_room_group(self, id: int):
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup).where(RoomGroup.id == id)
             return session.scalars(stmt).one()

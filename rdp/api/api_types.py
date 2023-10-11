@@ -20,6 +20,7 @@ class ValueNoID(BaseModel):
 class DeviceNoID(BaseModel):
     name: str
     device: str
+    room_id: int | None = None
 
 
 class Device(DeviceNoID):
@@ -38,7 +39,17 @@ class ApiDescription(BaseModel):
 
 class RoomNoID(BaseModel):
     name: str
+    room_group_id: int | None = None
 
 
 class Room(RoomNoID):
+    id: int
+
+
+class RoomGroupNoID(BaseModel):
+    name: str
+    room_group_id: int | None = None
+
+
+class RoomGroup(RoomGroupNoID):
     id: int
