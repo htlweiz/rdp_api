@@ -46,6 +46,16 @@ class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column()
+    room_id: Mapped[int] = mapped_column(ForeignKey("room.id"))
 
     def __repr__(self) -> str:
-        return f"Device(id={self.id!r}, name={self.name!r})"
+        return f"Device(id={self.id!r}, name={self.name!r}, room_id={self.room_id!r})"
+
+
+class Room(Base):
+    __tablename__ = "room"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+
+    def __repr__(self) -> str:
+        return f"Room(id={self.id!r}, name={self.name!r})"

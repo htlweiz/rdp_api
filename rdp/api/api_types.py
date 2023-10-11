@@ -21,7 +21,14 @@ class ApiDescription(BaseModel):
     value_link : str = "/value"
 
 class DeviceNoID(BaseModel):
-    name: str = "TEST"
+    name: str = "name"
     
 class Device(DeviceNoID):
+    id: int
+
+class RoomNoID(BaseModel):
+    name: str = "name"
+    room_id: int = 0
+
+class Room(RoomNoID):
     id: int

@@ -137,7 +137,6 @@ class Crud:
                 stmt = select(Device).where(Device.id == device_id)
                 return session.scalars(stmt).one()
 
-
     def add_or_update_device(
         self,
         device_id: int = None,
