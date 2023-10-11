@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device
+from .model import Base, Value, ValueType, Device, Room
 
 
 class Crud:
@@ -49,7 +49,6 @@ class Crud:
                 db_type.type_unit = "UNIT_%d" % value_type_id
             session.add_all([db_type])
             session.commit()
-            print("asd")
             return db_type
 
     def add_value(
@@ -100,6 +99,23 @@ class Crud:
                 raise
         stmt = select(Device).where(Device.device == tmp_device)
         return session.scalars(stmt).one()
+
+    def add_or_update_room(self, room_id, room_name) -> Room:
+        new_id = None
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            db_room = None
+            for room in session.scalars(stmt):
+                db_room = room
+            if db_room is None:
+                db_room = Room()
+            if room_name:
+                db_room.name = room_name
+            session.add(db_room)
+            session.commit()
+            session.refresh(db_room)
+            new_id = db_room.id
+        return self.get_room(new_id)
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
@@ -173,3 +189,8 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(Device)
             return session.scalars(stmt).all()
+
+    def get_room(self, id: int):
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == id)
+            return session.scalars(stmt).one()

@@ -167,6 +167,51 @@ def get_values(
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+@app.get("/room/{id}")
+def get_room(id) -> ApiTypes.Room:
+    """Get specific room from the database with the specified id.
+    Args:
+        id int: room id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Room: A room in the database.
+    """
+    global crud
+    try:
+        return crud.get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.put("/room/{id}/")
+def put_room(id, device: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """PUT room: Add room or update room of id.
+
+    Args:
+        id int: room id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Room: A room in the database.
+
+    """
+    global crud
+    try:
+        room = crud.add_or_update_room(id, room_name=device.name)
+        return get_room(room.id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""

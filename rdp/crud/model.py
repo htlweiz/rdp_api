@@ -46,9 +46,35 @@ class Device(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     device: Mapped[str]
+    room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=True)
 
+    room: Mapped["Room"] = relationship(back_populates="devices")
     values: Mapped[List["Value"]] = relationship(
         back_populates="device", cascade="all, delete-orphan"
     )
 
     __table_args__ = (UniqueConstraint("device", name="device integrity"),)
+
+
+class Room(Base):
+    __tablename__ = "room"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    room_group_id: Mapped[int] = mapped_column(
+        ForeignKey("room_group.id"), nullable=True
+    )
+
+    room_group: Mapped["RoomGroup"] = relationship(back_populates="rooms")
+    devices: Mapped[List["Device"]] = relationship(
+        back_populates="room", cascade="all, delete-orphan"
+    )
+
+
+class RoomGroup(Base):
+    __tablename__ = "room_group"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+
+    rooms: Mapped[List["Room"]] = relationship(
+        back_populates="room_group", cascade="all, delete-orphan"
+    )

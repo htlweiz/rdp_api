@@ -34,3 +34,11 @@ class ApiDescription(BaseModel):
     description: str = "This is the Api"
     value_type_link: str = "/type"
     value_link: str = "/value"
+
+
+class RoomNoID(BaseModel):
+    name: str
+
+
+class Room(RoomNoID):
+    id: int
