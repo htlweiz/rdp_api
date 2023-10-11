@@ -126,8 +126,8 @@ def get_device(id:int=None) -> ApiTypes.Device:
     try:
         device = crud.get_device(id)
         return device
-    except:
-        return 0
+    except Exception as e:
+        return e
 
 """@app.put("/device/{id}/{type_id}/")
 def put_values_by_device_and_type(device_id:int=None, type_id:int=None) -> List[ApiTypes.Value]:
@@ -147,6 +147,98 @@ def get_values_by_device_id(device_id:int=None) -> List[ApiTypes.Value]:
         logging.error("failed...")
         return 0
 
+
+@app.put("/room/{id}")
+def put_room(id, room: ApiTypes.RoomNoId) -> ApiTypes.Room:
+    """_summary_
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        ApiTypes.Room: _description_
+    """
+    global crud
+    try:
+        crud.add_or_update_room(id, room_name=room.room_name, room_group=room.room_group_id)
+        return get_room_by_id(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/room/")
+def get_rooms() -> List[ApiTypes.Room]:
+    """_summary_
+
+    Args:
+        id (int): _description_
+
+    Returns:
+        List[ApiTypes.Room]: _description_
+    """
+    global crud
+    try:
+        rooms = crud.get_rooms()
+        return rooms
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=e)
+
+@app.get("/room/{id}")
+def get_room_by_id(id:int=None) -> ApiTypes.Room:
+    """_summary_
+
+    Args:
+        id (int): _description_
+
+    Returns:
+        List[ApiTypes.Room]: _description_
+    """
+    global crud
+    try:
+        room = crud.get_room_by_id(id)
+        return room
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=e)
+
+@app.put("/roomgroup/{id}")
+def put_group_room(id, group: ApiTypes.RoomGroupNoId) -> ApiTypes.RoomGroup:
+    """_summary_
+
+    Args:
+        id (_type_): _description_
+        group (ApiTypes.RoomGroup): _description_
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        ApiTypes.RoomGroup: _description_
+    """
+    global crud
+    try:
+        crud.put_group_room(id, room_group_name=group.room_group_name)
+        return get_room_group_by_id(id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=e)
+
+@app.get("/roomgroup/{id}")
+def get_room_group_by_id(id:int=None) -> ApiTypes.RoomGroup:
+    """_summary_
+
+    Args:
+        id (int, optional): _description_. Defaults to None.
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        ApiTypes.RoomGroup: _description_
+    """
+    global crud
+    try:
+        room = crud.get_room_group_by_id(id)
+        return room
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=e)
 
 @app.on_event("startup")
 async def startup_event() -> None:

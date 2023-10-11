@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device
+from .model import Base, Value, ValueType, Device, Room, RoomGroup
 
 
 class Crud:
@@ -131,7 +131,8 @@ class Crud:
     def add_or_update_device(
         self, 
         device_id: int = None, 
-        device_name: str = None 
+        device_name: str = None, 
+        room_id: int = None
     ) -> None:
         """_summary_
 
@@ -151,6 +152,10 @@ class Crud:
                 db_type.name = device_name
             elif not db_type.device_name:
                 db_type.device_name = "NONAME_%d" % device_id
+            if room_id:
+                db_type.room_id = room_id
+            elif not db_type.room_id:
+                db_type.room_id = "NOROOM_%d" % room_id
             session.add_all([db_type])
             session.commit()
             return db_type
@@ -190,3 +195,102 @@ class Crud:
                 stmt = select(Value).where(Value.device_id == device_id)
                 logging.error(session.scalars(stmt).all())
             return session.scalars(stmt).all()
+
+    def add_or_update_room(self, room_id, room_name, room_group_id) -> None:
+        """_summary_
+
+        Args:
+            room_id (_type_): _description_
+            room_name (_type_): _description_
+            room_group (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            db_type = None
+            for type in session.scalars(stmt):
+                db_type = type
+            if db_type is None:
+                db_type = Room(id=room_id)
+            if room_name:
+                db_type.room_name = room_name
+            elif not db_type.room_name:
+                db_type.room_name = "NONAME_%d" % room_id
+            if room_group_id:
+                db_type.room_group_id = room_group_id
+            elif not db_type.room_group_id:
+                db_type.room_group_id = "NONAME_%d" % room_id
+            logging.error(db_type)
+            session.add_all([db_type])
+            session.commit()
+            return db_type
+
+    def get_rooms(self) -> List[Room]:
+        """_summary_
+
+        Returns:
+            List[Room]: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(Room)
+            stmt = stmt.order_by(Room.id)
+            return session.scalars(stmt).all()
+
+    def get_room_by_id(self, room_id) -> Room:
+        """_summary_
+
+        Args:
+            room_id (_type_): _description_
+
+        Returns:
+            Room: _description_
+        """
+        with Session(self._engine) as session:
+            if room_id is not None:
+                logging.error("searching...")
+                stmt = select(Room).where(Room.id == room_id)
+                logging.error(session.scalars(stmt).all())
+            return session.scalars(stmt).one()
+
+    def put_group_room(self, grou_id, group_name) -> None:
+        """_summary_
+
+        Args:
+            group_name (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup).where(RoomGroup.id == group_id)
+            db_type = None
+            for type in session.scalars(stmt):
+                db_type = type
+            if db_type is None:
+                db_type = RoomGroup(id=group_id)
+            if group_name:
+                db_type.room_group_name = group_name
+            elif not db_type.room_group_name:
+                db_type.room_group_name = "NONAME_%d" % group_id
+            logging.error(db_type)
+            session.add_all([db_type])
+            session.commit()
+            return db_type
+
+    def get_room_group_by_id(self, group_id) -> RoomGroup:
+        """_summary_
+
+        Args:
+            group_id (_type_): _description_
+
+        Returns:
+            RoomGroup: _description_
+        """
+        with Session(self._engine) as session:
+            if room_id is not None:
+                logging.error("searching...")
+                stmt = select(RoomGroup).where(RoomGroup.id == group_id)
+                logging.error(session.scalars(stmt).all())
+            return session.scalars(stmt).one()

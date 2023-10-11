@@ -47,6 +47,9 @@ class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column()
+    room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=True)
+
+    room: Mapped["Room"] = relationship(back_populates="rooms")
 
     devices: Mapped[List["Value"]] = relationship(
         back_populates="device", cascade="all, delete-orphan"
@@ -55,3 +58,31 @@ class Device(Base):
     def __repr__(self) -> str:
         return f"Device(id={self.id!r}, device_name={self.name!r})"
 
+class Room(Base):
+    __tablename__ = "room"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    room_name: Mapped[str] = mapped_column()
+    room_group_id: Mapped[str] = mapped_column(ForeignKey("room_group.id"), nullable=True)
+
+    room_group: Mapped["RoomGroup"] = relationship(back_populates="room_groups")
+
+    rooms: Mapped["Device"] = relationship(
+        back_populates="room", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        return f"Room(id={self.id!r}, room_name={self.room_name!r}, room_group={self.room_group!r})"
+
+class RoomGroup(Base):
+    __tablename__ = "room_group"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    room_group_name: Mapped[str] = mapped_column()
+
+    # room_group: Mapped["RoomGroup"] = relationship(back_populates="room_groups")
+
+    room_groups: Mapped["Room"] = relationship(
+        back_populates="room_group", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        return f"RoomGroup(id={self.id!r}, room_group_name={self.room_group_name!r})"
