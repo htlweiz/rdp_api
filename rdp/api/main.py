@@ -106,7 +106,7 @@ def put_device(id, device_name: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
     global crud
     try:
-        crud.add_or_update_device(id, device_name=device_name.name)
+        crud.add_or_update_device(id, device_name=device_name.name, room_id=device_name.room_id)
         return get_device(id)
         # return 42
     except crud.NoResultFound:
@@ -160,7 +160,7 @@ def put_room(id, room: ApiTypes.RoomNoId) -> ApiTypes.Room:
     """
     global crud
     try:
-        crud.add_or_update_room(id, room_name=room.room_name, room_group=room.room_group_id)
+        crud.add_or_update_room(id, this_room_name=room.room_name, room_group_id=room.room_group_id)
         return get_room_by_id(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -197,10 +197,10 @@ def get_room_by_id(id:int=None) -> ApiTypes.Room:
         room = crud.get_room_by_id(id)
         return room
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise e
 
 @app.put("/roomgroup/{id}")
-def put_group_room(id, group: ApiTypes.RoomGroupNoId) -> ApiTypes.RoomGroup:
+def put_room_group(id, group: ApiTypes.RoomGroupNoId) -> ApiTypes.RoomGroup:
     """_summary_
 
     Args:
@@ -215,10 +215,10 @@ def put_group_room(id, group: ApiTypes.RoomGroupNoId) -> ApiTypes.RoomGroup:
     """
     global crud
     try:
-        crud.put_group_room(id, room_group_name=group.room_group_name)
+        crud.put_room_group(id, room_group_name=group.room_group_name)
         return get_room_group_by_id(id)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise e
 
 @app.get("/roomgroup/{id}")
 def get_room_group_by_id(id:int=None) -> ApiTypes.RoomGroup:

@@ -196,7 +196,7 @@ class Crud:
                 logging.error(session.scalars(stmt).all())
             return session.scalars(stmt).all()
 
-    def add_or_update_room(self, room_id, room_name, room_group_id) -> None:
+    def add_or_update_room(self, room_id, this_room_name, room_group_id) -> None:
         """_summary_
 
         Args:
@@ -214,8 +214,8 @@ class Crud:
                 db_type = type
             if db_type is None:
                 db_type = Room(id=room_id)
-            if room_name:
-                db_type.room_name = room_name
+            if this_room_name:
+                db_type.room_name = this_room_name
             elif not db_type.room_name:
                 db_type.room_name = "NONAME_%d" % room_id
             if room_group_id:
@@ -254,11 +254,11 @@ class Crud:
                 logging.error(session.scalars(stmt).all())
             return session.scalars(stmt).one()
 
-    def put_group_room(self, grou_id, group_name) -> None:
+    def put_room_group(self, group_id, room_group_name) -> None:
         """_summary_
 
         Args:
-            group_name (_type_): _description_
+            room_group_name (_type_): _description_
 
         Returns:
             _type_: _description_
@@ -270,8 +270,8 @@ class Crud:
                 db_type = type
             if db_type is None:
                 db_type = RoomGroup(id=group_id)
-            if group_name:
-                db_type.room_group_name = group_name
+            if room_group_name:
+                db_type.room_group_name = room_group_name
             elif not db_type.room_group_name:
                 db_type.room_group_name = "NONAME_%d" % group_id
             logging.error(db_type)
@@ -289,7 +289,7 @@ class Crud:
             RoomGroup: _description_
         """
         with Session(self._engine) as session:
-            if room_id is not None:
+            if group_id is not None:
                 logging.error("searching...")
                 stmt = select(RoomGroup).where(RoomGroup.id == group_id)
                 logging.error(session.scalars(stmt).all())
