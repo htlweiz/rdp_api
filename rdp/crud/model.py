@@ -40,3 +40,12 @@ class Value(Base):
 
     def __repr__(self) -> str:
         return f"Value(id={self.id!r}, value_time={self.time!r} value_type={self.value_type.type_name!r}, value={self.value})"
+
+
+class Device(Base):
+    __tablename__ = "Device"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    device_name: Mapped[str]
+
+    def __repr__(self) -> str:
+        return f"Device(device_id={self.id!r}, device_name={self.device_name!r})"

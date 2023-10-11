@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Device, Value, ValueType
 
 
 class Crud:
@@ -122,3 +122,48 @@ class Crud:
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+    def add_or_update_device(self, device_id: int = None, device_name: str = None) -> Device:
+        """Update or add a device.
+
+        Args:
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_name (str, optional): Device name which should be set or updated. Defaults to None.
+
+        Returns:
+            Device: The updated or newly created Device object.
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            db_device = None
+            for device in session.scalars(stmt):
+                db_device = device
+            if db_device is None:
+                db_device = Device(id=device_id)
+            if device_name:
+                db_device.device_name = device_name
+            elif not db_device.device_name:
+                db_device.device_name = "DEVICE_%d" % device_id
+            session.add(db_device)
+            session.commit()
+            return db_device
+
+
+
+    def get_device(self, id: int) -> Device:
+        """Get a device by its ID.
+
+        Args:
+            id (int): The ID of the device.
+
+        Raises:
+            NoResultFound: If no device with the given ID is found.
+
+        Returns:
+            Device: The requested device.
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == id)
+            device = session.scalars(stmt).one()
+            return device
+

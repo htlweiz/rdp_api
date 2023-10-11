@@ -92,6 +92,55 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+
+@app.put("/device/{id}/")
+def put_device(id: int, device: ApiTypes.DeviceTypeNoID) -> ApiTypes.DeviceType:
+    """PUT request to a special device. This API call is used to change a device name object.
+
+    Args:
+        id (int): The id of the device.
+        device (ApiTypes.DeviceTypeNoID): The device object.
+        name (str): The new name for the device.
+
+    Raises:
+        HTTPException: Thrown if a device with the given id cannot be accessed.
+
+    Returns:
+        ApiTypes.DeviceTypeNoID: The requested device id after being persisted in the database.
+    """
+    global crud
+    try:
+        logger.error("Ich bin hier!")
+        crud.add_or_update_device(id, device_name=device.device_name)
+        logger.error("Ich2")
+        return get_device(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+
+
+
+@app.get("/device/{id}/")
+def get_device(id: int = None) -> ApiTypes.DeviceType:
+    """Get the device id from the database. The default is to return all available ids. This result can be filtered.
+
+    Args:
+        id (int, optional): If set, only ids of this type are returned. Defaults to None.
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        List[ApiTypes.Value]: _description_
+    """ 
+    global crud
+    try:
+        device = crud.get_device(id)
+        return device
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader
@@ -112,3 +161,4 @@ async def startup_event():
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
+ 
