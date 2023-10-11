@@ -78,12 +78,16 @@ class Crud:
     def add_or_update_device(
         self, device_id: int = None, device_device: str = None, device_name: str = None
     ) -> Device:
-        db_device = None
-        tmp_device = None
+        new_id = None
         with Session(self._engine) as session:
-            stmt = select(Device).where(Device.id == device_id)
-            for device in session.scalars(stmt):
-                db_device = device
+            db_device = None
+            if device_id is not None:
+                stmt = select(Device).where(Device.id == device_id)
+                for device in session.scalars(stmt):
+                    db_device = device
+                if db_device is None:
+                    logging.error(f"Device with id:{device_id} does not exist.")
+                    raise NoResultFound()
             if db_device is None:
                 db_device = Device()
             if device_device:
@@ -91,14 +95,14 @@ class Crud:
             if device_name:
                 db_device.name = device_name
             session.add(db_device)
-            tmp_device = db_device.device
             try:
                 session.commit()
             except IntegrityError:
                 logging.error("Integrity")
                 raise
-        stmt = select(Device).where(Device.device == tmp_device)
-        return session.scalars(stmt).one()
+            session.refresh(db_device)
+            new_id = db_device.id
+        return self.get_device(new_id)
 
     def add_or_update_room(self, room_id, room_name) -> Room:
         new_id = None

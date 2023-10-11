@@ -97,12 +97,12 @@ def get_device(id) -> ApiTypes.Device:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.put("/device/{id}/")
-def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
-    """PUT device: Add device or update device of id.
+@app.post("/device/")
+def post_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    """PUT device: Add device.
 
     Args:
-        id int: device id
+        device (ApiTypes.DeviceNoID): json object representing the new state of the device.
 
     Raises:
         HTTPException
@@ -113,13 +113,40 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
     global crud
     try:
-        device = crud.add_or_update_device(
-            id, device_device=device.device, device_name=device.name
+        return crud.add_or_update_device(
+            device_device=device.device, device_name=device.name
         )
-        return get_device(device.id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-    except crud.IntegrityError as e:
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
+@app.put("/device/{id}/")
+def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    """PUT device: Add device or update device of id.
+
+    Args:
+        id int: device id
+        device (ApiTypes.DeviceNoID): json object representing the new state of the device.
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Device: A device in the database.
+
+    """
+    global crud
+    try:
+        return crud.add_or_update_device(
+            id, device_device=device.device, device_name=device.name
+        )
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
         raise HTTPException(
             status_code=400,
         )
@@ -187,7 +214,7 @@ def get_room(id) -> ApiTypes.Room:
 
 
 @app.put("/room/{id}/")
-def put_room(id, device: ApiTypes.RoomNoID) -> ApiTypes.Room:
+def put_room(device: ApiTypes.RoomNoID, id=None) -> ApiTypes.Room:
     """PUT room: Add room or update room of id.
 
     Args:
