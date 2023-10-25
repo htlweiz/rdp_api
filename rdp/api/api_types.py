@@ -1,3 +1,4 @@
+from typing import List, Dict
 from pydantic import BaseModel
 
 
@@ -42,3 +43,8 @@ class RoomNoID(BaseModel):
 
 class Room(RoomNoID):
     id: int
+
+
+class CsvHeaderMapping(BaseModel):
+    mappings: List[Dict[str, str]]
+    device_id: int

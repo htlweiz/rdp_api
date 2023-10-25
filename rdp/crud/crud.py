@@ -1,5 +1,9 @@
 import logging
+import pandas as pd
+
 from typing import List
+
+from io import StringIO
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -194,3 +198,7 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(Room).where(Room.id == id)
             return session.scalars(stmt).one()
+
+    def load_csv(self, csv_text: str):
+        df = pd.read_csv(StringIO(csv_text.decode('utf-8')))
+        logging.error([row for row in df.iterrows()])

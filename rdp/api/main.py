@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from rdp.crud import Crud, create_engine
 from rdp.sensor import Reader
 
@@ -210,6 +210,14 @@ def put_room(id, device: ApiTypes.RoomNoID) -> ApiTypes.Room:
         raise HTTPException(
             status_code=400,
         )
+
+
+@app.post("/csv/")
+async def upload_csv_files(file: UploadFile):
+    global crud
+    logger.error("csvfile")
+    crud.load_csv(await file.read())
+    return {"detail": "success"}
 
 
 @app.on_event("startup")
