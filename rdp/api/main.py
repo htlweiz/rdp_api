@@ -170,10 +170,11 @@ async def import_csv(file: UploadFile = File(...)):
 
 def parse_csv(content, filename):
     rows = []
+    value_types = []
     raw_rows = content.split("\n")
     for raw_row in raw_rows:
         if raw_row == raw_rows[0]:
-            value_types = raw_row
+            value_types = raw_row.split(',')
         else:
             one_line = raw_row.split(',')
             # for x in one_line:

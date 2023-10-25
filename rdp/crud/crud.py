@@ -60,12 +60,14 @@ class Crud:
             value_type (int): Valuetype id of the given value. 
             value_value (float): The measurement value as float.
         """        
+        print("akfjöladjföajflöajldfkajölfja")
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type, device=device_id)
+            db_device = self.add_or_update_device(device_id)
+            db_value = Value(time=value_time, value=value_value, value_type=db_type, device=db_device)
 
-            session.add_all([db_type, db_value])
+            session.add_all([db_type, db_device, db_value])
             try:
                 session.commit()
             except IntegrityError:
