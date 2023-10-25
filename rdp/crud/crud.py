@@ -20,7 +20,7 @@ class Crud:
         self,
         value_type_id: int = None,
         value_type_name: str = None,
-        value_type_unit: str = None,
+        value_type_unit: str = None
     ) -> None:
         """update or add a value type
 
@@ -49,9 +49,10 @@ class Crud:
                 db_type.type_unit = "UNIT_%d" % value_type_id
             session.add_all([db_type])
             session.commit()
+            session.refresh(db_type)
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(self, value_time: int, value_type: int, value_value: float, device_id: int=None) -> None:
         """Add a measurement point to the database.
 
         Args:
@@ -62,7 +63,7 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
+            db_value = Value(time=value_time, value=value_value, value_type=db_type, device=device_id)
 
             session.add_all([db_type, db_value])
             try:
@@ -151,6 +152,7 @@ class Crud:
                db_device.name = "Device_%d" % device_id
             session.add_all([db_device])
             session.commit()
+            session.refresh(db_device)
             return db_device
 
 

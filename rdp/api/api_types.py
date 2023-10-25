@@ -9,6 +9,7 @@ class ValueType(ValueTypeNoID):
 
 class ValueNoID(BaseModel):
     value_type_id: int
+    device_id: int
     time: int
     value: float 
 

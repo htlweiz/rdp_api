@@ -1,6 +1,7 @@
 from typing import Union, List
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.responses import HTMLResponse
 
 from rdp.sensor import Reader
 from rdp.crud import create_engine, Crud
@@ -151,3 +152,36 @@ def get_room(id:int=None) -> ApiTypes.RoomNoID:
         return room
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
+
+
+@app.post("/import_csv/")
+async def import_csv(file: UploadFile = File(...)):
+    
+    file_content = await file.read()
+    parse_csv(file_content.decode('utf-8'), file.filename)
+
+
+    logger.error("CSV File Content:")
+    logger.error(file_content)
+
+
+    return "CSV File added!"
+
+
+def parse_csv(content, filename):
+    rows = []
+    raw_rows = content.split("\n")
+    for raw_row in raw_rows:
+        if raw_row == raw_rows[0]:
+            value_types = raw_row
+        else:
+            one_line = raw_row.split(',')
+            # for x in one_line:
+            #     if x != one_line[0]:
+            for x in range(len(one_line)):
+                if x != 0:
+                    crud.add_value(value_time=one_line[0],
+                                   value_type=crud.add_or_update_value_type(value_type_name=value_types[x],value_type_unit="bogus_unit").id,
+                                   value_value=one_line[x], device_id=crud.add_or_update_device(device_name=filename).id)
+        # rows.append(one_line)
+
