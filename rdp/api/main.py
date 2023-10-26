@@ -171,10 +171,15 @@ async def import_csv(file: UploadFile = File(...)):
 def parse_csv(content, filename):
     rows = []
     value_types = []
+    value_types_obj = []
+    device_obj = crud.add_or_update_device(device_name=filename)
     raw_rows = content.split("\n")
     for raw_row in raw_rows:
         if raw_row == raw_rows[0]:
             value_types = raw_row.split(',')
+            for i in value_types:
+                if i != "time":
+                    value_types_obj.append(crud.add_or_update_value_type(value_type_name=i,value_type_unit="bogus_unit"))
         else:
             one_line = raw_row.split(',')
             # for x in one_line:
@@ -182,7 +187,11 @@ def parse_csv(content, filename):
             for x in range(len(one_line)):
                 if x != 0:
                     crud.add_value(value_time=one_line[0],
-                                   value_type=crud.add_or_update_value_type(value_type_name=value_types[x],value_type_unit="bogus_unit").id,
-                                   value_value=one_line[x], device_id=crud.add_or_update_device(device_name=filename).id)
+                                   value_type=define_value_type_id(value_types[x], value_types_obj),
+                                   value_value=one_line[x], device_id=device_obj.id)
         # rows.append(one_line)
 
+def define_value_type_id(value_type_name, value_type_obj):
+        for i in value_type_obj:
+            if i.type_name == value_type_name:
+                return i.id
