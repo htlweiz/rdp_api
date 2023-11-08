@@ -226,6 +226,7 @@ class Crud:
         df_no_time = df.drop(columns=["time"])
         no_time_keys = df_no_time.keys()
         with Session(self._engine) as session:
+            device = session.query(Device).filter(Device.id == device_id).one()
             for _, row in df.iterrows():
                 for key in no_time_keys:
                     value_type = (
@@ -238,7 +239,7 @@ class Crud:
                         time=time,
                         value=row[key],
                         value_type=value_type,
-                        device_id=device_id,
+                        device=device
                     )
                     session.add(value)
             session.commit()

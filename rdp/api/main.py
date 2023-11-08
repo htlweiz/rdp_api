@@ -227,7 +227,10 @@ async def upload_csv_files(
         success
     """
     global crud
-    crud.load_csv(await file.read(), device_id)
+    try:
+        crud.load_csv(await file.read(), device_id)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
     return {"detail": "success"}
 
 
