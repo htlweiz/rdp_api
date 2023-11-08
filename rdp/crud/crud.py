@@ -51,7 +51,7 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float, device_id:int ) -> None:
+    def add_value(self, value_time: int, value_type_id: int, value_value: float, device_id: int ) -> None:
         """Add a measurement point to the database.
 
         Args:
@@ -60,11 +60,11 @@ class Crud:
             value_value (float): The measurement value as float.
         """        
         with Session(self._engine) as session:
-            stmt = select(ValueType).where(ValueType.id == value_type)
-            db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type, device_id=device_id)
+            db_value = None
+            
+            db_value = Value(time=value_time, value=value_value, value_type_id=value_type_id, device_id=device_id)
 
-            session.add_all([db_type, db_value])
+            session.add_all([db_value])
             try:
                 session.commit()
             except IntegrityError:

@@ -17,6 +17,7 @@ def read_root() -> ApiTypes.ApiDescription:
     Returns:
         ApiTypes.ApiDescription: the Api description in json format 
     """    
+    ApiTypes.ApiDescription.__name__ = "Hello"
     return ApiTypes.ApiDescription()
 
 @app.get("/type/")
@@ -65,10 +66,31 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     """
     global crud
     try:
-        crud.add_or_update_value_type(id, value_type_name=value_type.type_name, value_type_unit=value_type.type_unit)
+        crud.add_or_update_value_type(id, value_time=value_type.time, type_id=value_type.value_type_id, value_value=value_type.value, device_id=value_type.device_id)
         return read_type(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
+
+@app.post("/value/")
+def add_value(value: ApiTypes.ValueNoID): # -> ApiTypes.Value:
+    """PUT request to a special valuetype. This api call is used to change a value type object.
+
+    Args:
+        id (int): primary key of the requested value type
+        value_type (ApiTypes.ValueTypeNoID): json object representing the new state of the value type. 
+
+    Raises:
+        HTTPException: Thrown if a value type with the given id cannot be accessed 
+
+    Returns:
+        ApiTypes.ValueType: the requested value type after persisted in the database. 
+    """
+    global crud
+    try:
+        crud.add_value(value_time=value.time, value_type_id=value.value_type_id, value_value=value.value, device_id=value.device_id)
+        return 0 # crud.get_values(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Value could not be uploaded")
 
 @app.get("/value/")
 def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
