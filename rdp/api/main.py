@@ -1,7 +1,7 @@
 import logging
-from typing import List
+from typing import List, Annotated
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, Form
 from rdp.crud import Crud, create_engine
 from rdp.sensor import Reader
 
@@ -213,10 +213,21 @@ def put_room(id, device: ApiTypes.RoomNoID) -> ApiTypes.Room:
 
 
 @app.post("/csv/")
-async def upload_csv_files(file: UploadFile):
+async def upload_csv_files(
+    file: UploadFile,
+    device_id: Annotated[int, Form()],
+):
+    """POST value data
+
+    Args:
+        file: File in csv format
+        device_id: device id
+
+    Returns:
+        success
+    """
     global crud
-    logger.error("csvfile")
-    crud.load_csv(await file.read())
+    crud.load_csv(await file.read(), device_id)
     return {"detail": "success"}
 
 

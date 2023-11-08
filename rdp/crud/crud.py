@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 
+from datetime import datetime
 from typing import List
 
 from io import StringIO
@@ -179,7 +180,15 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_device(self, id: int):
+    def get_device(self, id: int) -> Device:
+        """Get Device from database.
+        
+        Args:
+            id (int): device id
+        
+        Returns:
+            Device
+        """
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == id)
             return session.scalars(stmt).one()
@@ -194,11 +203,42 @@ class Crud:
             stmt = select(Device)
             return session.scalars(stmt).all()
 
-    def get_room(self, id: int):
+    def get_room(self, id: int) -> Room:
+        """Get Room from database.
+        
+        Args:
+            id (int): room id
+        
+        Returns:
+            Room
+        """
         with Session(self._engine) as session:
             stmt = select(Room).where(Room.id == id)
             return session.scalars(stmt).one()
 
-    def load_csv(self, csv_text: str):
-        df = pd.read_csv(StringIO(csv_text.decode('utf-8')))
-        logging.error([row for row in df.iterrows()])
+    def load_csv(self, csv_text: str, device_id: int):
+        """Insert data from csv to the database.
+
+        Returns:
+            None
+        """
+        df = pd.read_csv(StringIO(csv_text.decode("utf-8")))
+        df_no_time = df.drop(columns=["time"])
+        no_time_keys = df_no_time.keys()
+        with Session(self._engine) as session:
+            for _, row in df.iterrows():
+                for key in no_time_keys:
+                    value_type = (
+                        session.query(ValueType)
+                        .filter(ValueType.type_name == key)
+                        .one()
+                    )
+                    time = datetime.fromisoformat(row["time"]).timestamp()
+                    value = Value(
+                        time=time,
+                        value=row[key],
+                        value_type=value_type,
+                        device_id=device_id,
+                    )
+                    session.add(value)
+            session.commit()
