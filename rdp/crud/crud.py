@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
@@ -60,16 +60,9 @@ class Crud:
             value_value (float): The measurement value as float.
         """        
         with Session(self._engine) as session:
-            stmt = select(ValueType).where(ValueType.id == value_type)
-            db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
-
-            session.add_all([db_type, db_value])
-            try:
-                session.commit()
-            except IntegrityError:
-                logging.error("Integrity")
-                raise
+            db_value = Value(time=value_time, value=value_value, value_type_id=value_type)
+            session.add_all([db_value])
+            session.commit()
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types

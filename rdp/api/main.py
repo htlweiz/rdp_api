@@ -92,6 +92,22 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+@app.post("/value/")
+def create_value(value:float, time:int, value_type_id:int):
+    """Create a new value.
+
+    Args:
+        value (Value): The value to be created.
+
+    Returns:
+        Value: The created value.
+    """
+    global crud
+    try:
+        crud.add_value(value_time=time, value_type=value_type_id, value_value=value)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
 @app.get("/device/")
 def read_device() -> List[ApiTypes.Device]:
     """Implements the get of all devices
@@ -112,8 +128,8 @@ def read_device(id) -> ApiTypes.Device:
     global crud
     return crud.get_device(id)
 
-@app.put("/device/{id}/")
-def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+@app.put("/device/")
+def put_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """PUT request to a specail device. This api call is used to change a device object.
 
     Args:
@@ -128,8 +144,8 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
     global crud
     try:
-        crud.add_or_update_device(device_id=id, device_name=device.name)
-        return read_device(id)
+        new_device = crud.add_or_update_device(device_name=device.name)
+        return read_device(new_device.id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
