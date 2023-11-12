@@ -245,21 +245,22 @@ class Crud:
         """
         invoker = Invoker()
 
-        start_commands = {
-            1: TimeAscending,
-            2: TimeDescending,
-            3: ValueTypeSorted
-        }
+        command_configurations = [
+            (value_type_id, GetValueTypeId),
+            (start, GetTimeStart),
+            (end, GetTimeEnd),
+        ]
 
-        if value_type_id is not None:
-            invoker.add_command(GetValueTypeId(value_type_id))
-        if start is not None:
-            invoker.add_command(GetTimeStart(start))
-            command = start_commands.get(start)
-            if command:
-                invoker.add_command(command())
-        if end is not None:
-            invoker.add_command(GetTimeEnd(end))
+        sort_start_commands = {1: TimeAscending, 2: TimeDescending, 3: ValueTypeSorted}
+
+        for param, command_class in command_configurations:
+            if param is not None:
+                command = command_class(param)
+                invoker.add_command(command)
+
+        sort_command = sort_start_commands.get(start)
+        if sort_command:
+            invoker.add_command(sort_command())
                 
         with Session(self._engine) as session:
             stmt = select(Value)
