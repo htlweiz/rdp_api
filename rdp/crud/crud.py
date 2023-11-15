@@ -83,6 +83,16 @@ class Crud:
     def add_or_update_device(
         self, device_id: int = None, device_device: str = None, device_name: str = None
     ) -> Device:
+        """Update or add a device
+
+        Args:
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_device (str, optional): Device path where sensor data is coming from. Defaults to None.
+            device_name (str, optional): Device name. Defaults to None.
+
+        Returns:
+            Device: The added or updated device
+        """
         db_device = None
         tmp_device = None
         with Session(self._engine) as session:
@@ -106,6 +116,15 @@ class Crud:
         return session.scalars(stmt).one()
 
     def add_or_update_room(self, room_id, room_name) -> Room:
+        """Update or add a Room
+
+        Args:
+            room_id (int, optional): Room id to be modified (if None a new Room is added), Default to None.
+            room_name (str, optional): Room name. Defaults to None.
+
+        Returns:
+            Room: The added or updated room
+        """
         new_id = None
         with Session(self._engine) as session:
             stmt = select(Room).where(Room.id == room_id)
@@ -182,10 +201,10 @@ class Crud:
 
     def get_device(self, id: int) -> Device:
         """Get Device from database.
-        
+
         Args:
             id (int): device id
-        
+
         Returns:
             Device
         """
@@ -205,10 +224,10 @@ class Crud:
 
     def get_room(self, id: int) -> Room:
         """Get Room from database.
-        
+
         Args:
             id (int): room id
-        
+
         Returns:
             Room
         """
@@ -236,10 +255,7 @@ class Crud:
                     )
                     time = datetime.fromisoformat(row["time"]).timestamp()
                     value = Value(
-                        time=time,
-                        value=row[key],
-                        value_type=value_type,
-                        device=device
+                        time=time, value=row[key], value_type=value_type, device=device
                     )
                     session.add(value)
             session.commit()
