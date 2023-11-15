@@ -49,6 +49,20 @@ def read_type(id: int) -> ValueType:
 
 @app.put("/type/{id}/")
 def put_type(id: int, value_type: ValueTypeNoID) -> ValueType:
+    """PUT request to a special valuetype. This api call is used to change a value type object.
+
+    Args:
+        id (int): primary key of the requested value type
+        value_type (ApiTypes.ValueTypeNoID): json object representing the new state of the value type. 
+
+    Raises:
+        HTTPException: Thrown if a value type with the given id cannot be accessed 
+
+    Returns:
+        ApiTypes.ValueType: the requested value type after persisted in the database. 
+    """
+    global crud
+
     try:
         db_value_type = crud.get_value_type(id)
     except NoResultFound:
