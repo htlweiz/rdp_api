@@ -5,7 +5,7 @@ from sqlalchemy import select, insert
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device
+from .model import Base, Value, ValueType, Device, Room, RoomGroup
 
 
 class Crud:
@@ -116,24 +116,31 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_device(self, device_id=None) -> List[Device]:
+    def get_device(self, device_id=None) -> Device:
         """Get all configured devices
 
         Returns:
             List[Device]: List of Device objects. 
         """
         with Session(self._engine) as session:
-            if device_id == None:
-                stmt = select(Device)
-                return session.scalars(stmt).all()
-            else:
-                stmt = select(Device).where(Device.id == device_id)
-                return session.scalars(stmt).one()
+            stmt = select(Device).where(Device.id == device_id)
+            return session.scalars(stmt).one()
+
+    def get_devices(self) -> List[Device]:
+        """Get all configured devices
+
+        Returns:
+            List[Device]: List of Device objects. 
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device)
+            return session.scalars(stmt).all()
 
     def add_or_update_device(
         self,
         device_id: int = None,
-        device_name: str = None
+        device_name: str = None,
+        room_id: int = None
     ) -> None:
         """update or add a device
 
@@ -155,6 +162,104 @@ class Crud:
                 db_device.name = device_name
             elif not db_device.name:
                 db_device.name = "TYPE_%d" % device_id
+            if room_id:
+                db_device.room_id = room_id
             session.add_all([db_device])
             session.commit()
+            session.refresh(db_device)
             return db_device
+
+    def add_or_update_room(
+        self,
+        room_id: int = None,
+        room_name: str = None,
+        group_id: int = None
+    ) -> None:
+        """update or add a room
+
+        Args:
+            room_id (int, optional): Room id to be modified (if None a new Room is added), Default to None.
+            room_name (str, optional): Roomname wich should be set or updated. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            db_room = None
+            for room in session.scalars(stmt):
+                db_room = room
+            if db_room is None:
+                db_room = Room(id=room_id)
+            if room_name:
+                db_room.name = room_name
+            elif not db_room.name:
+                db_room.name = "NAME_%d" % room_id
+            if group_id:
+                db_room.group_id = group_id
+            elif not db_room.name:
+                db_room.name = 1
+            session.add_all([db_room])
+            session.commit()
+            session.refresh(db_room)
+            return db_room
+
+    def get_room(self, room_id=None) -> Room:
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            return session.scalars(stmt).one()
+
+    def get_rooms(self) -> List[Room]:
+        """Get all configured rooms
+
+        Returns:
+            List[Room]: List of Room objects. 
+        """
+        with Session(self._engine) as session:
+            stmt = select(Room)
+            return session.scalars(stmt).all()
+
+    def add_or_update_room_group(
+        self,
+        room_group_id: int = None,
+        room_group_name: str = None
+    ) -> None:
+        """update or add a room_group
+
+        Args:
+            room_group_id (int, optional): RoomGroup id to be modified (if None a new RoomGroup is added), Default to None.
+            room_group_name (str, optional): RoomGroupname wich should be set or updated. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup).where(RoomGroup.id == room_group_id)
+            db_room_group = None
+            for room_group in session.scalars(stmt):
+                db_room_group = room_group
+            if db_room_group is None:
+                db_room_group = RoomGroup(id=room_group_id)
+            if room_group_name:
+                db_room_group.name = room_group_name
+            elif not db_room_group.name:
+                db_room_group.name = "NAME_%d" % room_group_id
+            session.add_all([db_room_group])
+            session.commit()
+            session.refresh(db_room_group)
+            return db_room_group
+
+    def get_room_group(self, room_group_id=None) -> RoomGroup:
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup).where(RoomGroup.id == room_group_id)
+            return session.scalars(stmt).one()
+
+    def get_room_groups(self) -> List[RoomGroup]:
+        """Get all configured room_groups
+
+        Returns:
+            List[RoomGroup]: List of RoomGroup objects. 
+        """
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup)
+            return session.scalars(stmt).all()

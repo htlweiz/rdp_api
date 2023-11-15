@@ -22,13 +22,20 @@ class ApiDescription(BaseModel):
 
 class DeviceNoID(BaseModel):
     name: str = "name"
+    room_id: int
     
 class Device(DeviceNoID):
     id: int
 
 class RoomNoID(BaseModel):
     name: str = "name"
-    room_id: int = 0
+    group_id: int
 
 class Room(RoomNoID):
+    id: int
+
+class RoomGroupNoID(BaseModel):
+    name: str = "name"
+
+class RoomGroup(RoomGroupNoID):
     id: int
