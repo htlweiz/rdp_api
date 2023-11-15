@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, status, Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from rdp.crud import create_engine, Crud
+from rdp.sensor import Reader
 from .api_types import ValueType, ValueTypeNoID, Value, ValueNoID, Device, Room, RoomGroup, ApiTypes
 import logging
 
@@ -167,7 +168,7 @@ def put_value(device_id: int, value: ValueNoID) -> Value:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device or value type not found")
 
 @app.get("/room/")
-def get_room(id: int) -> Union[ApiTypes.Room, List[Room]]:
+def get_room() -> List[Room]:
     """Get rooms from the database. The default is to return all available rooms
 
     Raises:
@@ -183,7 +184,7 @@ def get_room(id: int) -> Union[ApiTypes.Room, List[Room]]:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.get("/room/{id}/")
-def get_room(id: int) -> Union[ApiTypes.Room, List[Room]]:
+def get_room_by_id(id: int) -> Room:
     """GET request to retrieve information about a room by id
 
     Args:
@@ -199,7 +200,7 @@ def get_room(id: int) -> Union[ApiTypes.Room, List[Room]]:
         raise HTTPException(status_code=404, detail="Room not found")
 
 @app.on_event("startup")
-async def startup_event(crud: Crud = Depends(create_crud)):
+async def startup_event():
     """Start the character device reader
     """
     global reader
@@ -209,7 +210,7 @@ async def startup_event(crud: Crud = Depends(create_crud)):
     logger.debug("STARTUP: Sensor reader completed!")
 
 @app.on_event("shutdown")
-async def shutdown_event(reader: Reader = Depends(Reader)):
+async def shutdown_event():
     """Stop the character device reader
     """
     logger.debug("SHUTDOWN: Sensor reader!")
