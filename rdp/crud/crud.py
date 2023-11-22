@@ -1,11 +1,16 @@
 import logging
+import pandas as pd
+
+from datetime import datetime
 from typing import List
+
+from io import StringIO
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device, Room
 
 
 class Crud:
@@ -51,18 +56,22 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(
+        self, value_time: int, value_type: int, device: int, value_value: float
+    ) -> None:
         """Add a measurement point to the database.
 
         Args:
             value_time (int): unix time stamp of the value.
-            value_type (int): Valuetype id of the given value. 
+            value_type (int): Valuetype id of the given value.
             value_value (float): The measurement value as float.
-        """        
+        """
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
+            db_value = Value(
+                time=value_time, value=value_value, value_type=db_type, device_id=device
+            )
 
             session.add_all([db_type, db_value])
             try:
@@ -71,11 +80,72 @@ class Crud:
                 logging.error("Integrity")
                 raise
 
+    def add_or_update_device(
+        self, device_id: int = None, device_device: str = None, device_name: str = None
+    ) -> Device:
+        """Update or add a device
+
+        Args:
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_device (str, optional): Device path where sensor data is coming from. Defaults to None.
+            device_name (str, optional): Device name. Defaults to None.
+
+        Returns:
+            Device: The added or updated device
+        """
+        db_device = None
+        tmp_device = None
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            for device in session.scalars(stmt):
+                db_device = device
+            if db_device is None:
+                db_device = Device()
+            if device_device:
+                db_device.device = device_device
+            if device_name:
+                db_device.name = device_name
+            session.add(db_device)
+            tmp_device = db_device.device
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+        stmt = select(Device).where(Device.device == tmp_device)
+        return session.scalars(stmt).one()
+
+    def add_or_update_room(self, room_id, room_name) -> Room:
+        """Update or add a Room
+
+        Args:
+            room_id (int, optional): Room id to be modified (if None a new Room is added), Default to None.
+            room_name (str, optional): Room name. Defaults to None.
+
+        Returns:
+            Room: The added or updated room
+        """
+        new_id = None
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            db_room = None
+            for room in session.scalars(stmt):
+                db_room = room
+            if db_room is None:
+                db_room = Room()
+            if room_name:
+                db_room.name = room_name
+            session.add(db_room)
+            session.commit()
+            session.refresh(db_room)
+            new_id = db_room.id
+        return self.get_room(new_id)
+
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
 
         Returns:
-            List[ValueType]: List of ValueType objects. 
+            List[ValueType]: List of ValueType objects.
         """
         with Session(self._engine) as session:
             stmt = select(ValueType)
@@ -95,7 +165,11 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
+        self,
+        value_type_id: int = None,
+        start: int = None,
+        end: int = None,
+        device_id: int = None,
     ) -> List[Value]:
         """Get Values from database.
 
@@ -117,8 +191,71 @@ class Crud:
                 stmt = stmt.where(Value.time >= start)
             if end is not None:
                 stmt = stmt.where(Value.time <= end)
+            if device_id is not None:
+                stmt = stmt.where(Value.device_id == device_id)
             stmt = stmt.order_by(Value.time)
             logging.error(start)
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+    def get_device(self, id: int) -> Device:
+        """Get Device from database.
+
+        Args:
+            id (int): device id
+
+        Returns:
+            Device
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == id)
+            return session.scalars(stmt).one()
+
+    def get_devices(self) -> List[Device]:
+        """Get Devices from database.
+
+        Returns:
+            List[Device]
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device)
+            return session.scalars(stmt).all()
+
+    def get_room(self, id: int) -> Room:
+        """Get Room from database.
+
+        Args:
+            id (int): room id
+
+        Returns:
+            Room
+        """
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == id)
+            return session.scalars(stmt).one()
+
+    def load_csv(self, csv_text: str, device_id: int):
+        """Insert data from csv to the database.
+
+        Returns:
+            None
+        """
+        df = pd.read_csv(StringIO(csv_text.decode("utf-8")))
+        df_no_time = df.drop(columns=["time"])
+        no_time_keys = df_no_time.keys()
+        with Session(self._engine) as session:
+            device = session.query(Device).filter(Device.id == device_id).one()
+            for _, row in df.iterrows():
+                for key in no_time_keys:
+                    value_type = (
+                        session.query(ValueType)
+                        .filter(ValueType.type_name == key)
+                        .one()
+                    )
+                    time = datetime.fromisoformat(row["time"]).timestamp()
+                    value = Value(
+                        time=time, value=row[key], value_type=value_type, device=device
+                    )
+                    session.add(value)
+            session.commit()
