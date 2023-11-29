@@ -23,7 +23,7 @@ class ApiDescription(BaseModel):
 class DeviceNoID(BaseModel):
     name: str = "name"
     room_id: int
-    
+
 class Device(DeviceNoID):
     id: int
 

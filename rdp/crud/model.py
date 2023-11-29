@@ -31,6 +31,7 @@ class Value(Base):
     time: Mapped[int] = mapped_column()
     value: Mapped[float] = mapped_column()
     value_type_id: Mapped[int] = mapped_column(ForeignKey("value_type.id"))
+    device_id: Mapped[int] = mapped_column(ForeignKey("device.id"))
 
     value_type: Mapped["ValueType"] = relationship(back_populates="values")
 

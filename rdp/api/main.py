@@ -16,7 +16,7 @@ def read_root() -> ApiTypes.ApiDescription:
 
     Returns:
         ApiTypes.ApiDescription: the Api description in json format 
-    """    
+    """
     return ApiTypes.ApiDescription()
 
 @app.get("/type/")
@@ -25,7 +25,7 @@ def read_types() -> List[ApiTypes.ValueType]:
 
     Returns:
         List[ApiTypes.ValueType]: list of available valuetypes. 
-    """    
+    """
     global crud
     return crud.get_value_types()
 
@@ -90,10 +90,10 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
         values = crud.get_values(type_id, start, end)
         return values
     except crud.NoResultFound:
-        raise HTTPException(status_code=404, deltail="Item not found")
+        raise HTTPException(status_code=404, detail="Item not found")
 
 @app.post("/value/")
-def create_value(value:float, time:int, value_type_id:int):
+def create_value(device_id: int, value: ApiTypes.ValueNoID) -> ApiTypes.Value:
     """Create a new value.
 
     Args:
@@ -104,7 +104,11 @@ def create_value(value:float, time:int, value_type_id:int):
     """
     global crud
     try:
-        crud.add_value(value_time=time, value_type=value_type_id, value_value=value)
+        new_value = crud.add_value(value_time=value.time,
+                                   value_type=value.value_type_id,
+                                   value_value=value,
+                                   device_id=device_id)
+        return new_value
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
@@ -128,8 +132,18 @@ def read_device(id) -> ApiTypes.Device:
     global crud
     return crud.get_device(id)
 
-@app.put("/device/")
-def put_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+@app.post("/device/")
+def create_value(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    global crud
+    try:
+        new_device = crud.add_or_update_device(device_name=device.name,
+										       room_id=device.room_id)
+        return read_device(new_device.id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/device/{id}/")
+def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """PUT request to a specail device. This api call is used to change a device object.
 
     Args:
@@ -144,7 +158,9 @@ def put_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
     global crud
     try:
-        new_device = crud.add_or_update_device(device_name=device.name, room_id=device.room_id)
+        new_device = crud.add_or_update_device(device_id=id,
+                                               device_name=device.name,
+                                               room_id=device.room_id)
         return read_device(new_device.id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -211,7 +227,7 @@ def read_room_group(id) -> ApiTypes.RoomGroup:
     return crud.get_room_group(room_group_id=id)
 
 @app.put("/room_group/")
-def put_room_group(room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.RoomGroup:
+def put_room_group(id, room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.RoomGroup:
     """PUT request to a specail room_group. This api call is used to change a room_group object.
 
     Args:
@@ -226,7 +242,7 @@ def put_room_group(room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.RoomGroup:
     """
     global crud
     try:
-        new_room_group = crud.add_or_update_room_group(room_group_name=room_group.name)
+        new_room_group = crud.add_or_update_room_group(id=id, room_group_name=room_group.name)
         return read_room_group(new_room_group.id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")

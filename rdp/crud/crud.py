@@ -51,16 +51,22 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(
+            self,
+            value_time: int,
+            value_type: int,
+            value_value: float,
+            device_id: int) -> None:
         """Add a measurement point to the database.
 
         Args:
             value_time (int): unix time stamp of the value.
             value_type (int): Valuetype id of the given value. 
             value_value (float): The measurement value as float.
-        """        
+            device_id (int): The id of the device.
+        """
         with Session(self._engine) as session:
-            db_value = Value(time=value_time, value=value_value, value_type_id=value_type)
+            db_value = Value(time=value_time, value=value_value, value_type_id=value_type, device_id=device_id)
             session.add_all([db_value])
             session.commit()
 
