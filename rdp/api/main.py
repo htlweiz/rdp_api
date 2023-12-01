@@ -216,7 +216,6 @@ def get_device(id):
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
-
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""

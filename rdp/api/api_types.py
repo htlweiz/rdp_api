@@ -4,7 +4,6 @@ class DeviceNoID(BaseModel):
     name: str
     device: str
 
-
 class Device(BaseModel):
     id: int
     name: str
@@ -23,7 +22,6 @@ class ValueNoID(BaseModel):
     value_type_id: int
     time: int
     value: float
-
 
 class Value(ValueNoID):
     id: int

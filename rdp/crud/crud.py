@@ -119,6 +119,7 @@ class Crud:
             stmt = select(ValueType).where(ValueType.id == value_type_id)
             return session.scalars(stmt).one()
 
+
     def get_values(
         self,
         value_type_id: int = None,
