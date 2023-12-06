@@ -2,6 +2,7 @@ import logging
 import struct
 import threading
 import time
+import random
 
 from rdp.crud import Crud
 
@@ -25,6 +26,9 @@ class Reader:
 
     def _run(self) -> None:
         count = 0
+        self._crud.add_device('device_0', 'test_location')
+        self._crud.add_device('device_1', 'test_location')
+        self._crud.add_device('device_2', 'test_location')
         while self._thread is not None:
             logger.info("A")
             with open("/dev/rdp_cdev", "rb") as f:
@@ -47,7 +51,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0])
+                    self._crud.add_value(value_time, type_num, value[0], random.randint(1, 3))
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break

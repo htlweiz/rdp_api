@@ -70,6 +70,15 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
+@app.get("/device/")
+def get_devices() -> List[ApiTypes.Device]:
+    global crud
+    try:
+        devices = crud.get_devices()
+        return devices
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
 @app.get("/value/")
 def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
@@ -107,7 +116,7 @@ async def startup_event() -> None:
 @app.on_event("shutdown")
 async def startup_event():
     """stop the character device reader
-    """    
+    """
     global reader
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
