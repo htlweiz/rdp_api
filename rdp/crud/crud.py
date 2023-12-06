@@ -212,15 +212,13 @@ class Crud:
         device_name: str = None,
         device_desc: str = None
     ) -> None:
-        """update or add a value type
+        """update or add a device
 
         Args:
-            value_type_id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
-            value_type_name (str, optional): Typename wich should be set or updated. Defaults to None.
-            value_type_unit (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_name (str, optional): Device name which should be set or updated. Defaults to None.
+            device_desc (str, optional): Device description of measurment wich should be set or updated. Defaults to None.
 
-        Returns:
-            _type_: _description_
         """
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == device_id)
@@ -248,6 +246,7 @@ class Crud:
             value_time (int): unix time stamp of the value.
             value_type (int): Valuetype id of the given value. 
             value_value (float): The measurement value as float.
+            device_id (int): id from a specific device
         """        
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
@@ -261,10 +260,28 @@ class Crud:
                 logging.error("Integrity")
                 raise
     
-    def get_device(self, device_id: int):
+    def get_device(self, device_id: int) -> Device:
+        """Get a special Device
+
+        Args:
+            device_id (int): the primary key of the Device
+
+        Returns:
+            Device: The Device object
+        """
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == device_id)
             return session.scalars(stmt).one()
+
+    def get_devices(self) -> List[Device]:
+        """Get all configured devices
+
+        Returns:
+            List[Device]: List of Device objects. 
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device)
+            return session.scalars(stmt).all()
         
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
@@ -299,9 +316,10 @@ class Crud:
             value_type_id (int, optional): If set, only value of this given type will be returned. Defaults to None.
             start (int, optional): If set, only values with a timestamp as least as big as start are returned. Defaults to None.
             end (int, optional): If set, only values with a timestamp as most as big as end are returned. Defaults to None.
+            device_id (int): If set, device id will be returned
 
         Returns:
-            List[Value]: _description_
+            List[Value]: List of ValueType objects.
         """
         invoker = Invoker()
 
