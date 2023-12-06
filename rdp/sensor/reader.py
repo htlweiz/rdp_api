@@ -24,10 +24,11 @@ class Reader:
         thread.join()
 
     def _run(self) -> None:
+        device_id = self._crud.add_or_update_device(device_id=1, device_name='device1', device_desc='something')
         count = 0
         while self._thread is not None:
             logger.info("A")
-            with open("/dev/rdp_cdev", "rb") as f:
+            with open(self._device, "rb") as f:
                 test = f.read(16)
                 for i in range(16):
                     if i % 2:
@@ -47,7 +48,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0])
+                    self._crud.add_value(value_time, type_num, value[0], device_id)
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break
