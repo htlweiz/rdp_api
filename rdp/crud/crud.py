@@ -89,6 +89,10 @@ class Crud:
                 db_device.device = device_device
             if device_name:
                 db_device.name = device_name
+            if postalCode:
+                db_device.postalCode = postalCode
+            if city:
+                db_device.city = city
             session.add(db_device)
             try:
                 session.commit()

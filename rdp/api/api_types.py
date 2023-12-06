@@ -3,11 +3,15 @@ from pydantic import BaseModel
 class DeviceNoID(BaseModel):
     name: str
     device: str
+    postalCode: int
+    city: str
 
 class Device(BaseModel):
     id: int
     name: str
     device: str
+    postalCode: int
+    city: str
 
 class ValueTypeNoID(BaseModel):
     type_name: str

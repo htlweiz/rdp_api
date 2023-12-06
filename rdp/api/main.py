@@ -171,7 +171,7 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     global crud
     try:
         crud.add_or_update_device(
-            id, device_device=device.name, device_name=device.name
+            id, device_device=device.name, device_name=device.name, postalCode=device.postalCode, city=device.city
         )
         return get_device(id)
     except crud.NoResultFound:
@@ -216,6 +216,7 @@ def get_device(id):
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""
@@ -235,3 +236,4 @@ async def shutdown_event():
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
+
