@@ -146,16 +146,6 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(Device)
             return session.scalars(stmt).all()
-    # def get_value_types(self) -> List[ValueType]:
-    #     """Get all configured value types
-
-    #     Returns:
-    #         List[ValueType]: List of ValueType objects. 
-    #     """
-    #     with Session(self._engine) as session:
-    #         stmt = select(ValueType)
-    #         return session.scalars(stmt).all()
-        
 
 #    def order_values(self) -> List(ValueType):
 #        """Sort the values.

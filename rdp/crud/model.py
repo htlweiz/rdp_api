@@ -31,14 +31,9 @@ class Value(Base):
     value: Mapped[float] = mapped_column()
 
     device_id: Mapped[int] = mapped_column(ForeignKey("device.id"))
-    # device: Mapped["Device"] = relationship(back_populates="name")
 
     value_type_id: Mapped[int] = mapped_column(ForeignKey("value_type.id"))
     value_type: Mapped["ValueType"] = relationship(back_populates="values")
-
-    # __table_args__ = (
-    #     UniqueConstraint("time", "value_type_id", name="value integrity"),
-    # )
 
     def __repr__(self) -> str:
         return f"Value(id={self.id!r}, value_time={self.time!r} value_type={self.value_type.type_name!r}, value={self.value})"
@@ -51,6 +46,3 @@ class Device(Base):
 
     def __repr__(self) -> str:
         return f"Device(id={self.id!r}, Name={self.name})"
-
-    # value_type_id: Mapped[int] = mapped_column(ForeignKey("value_type.id"))
-    # value_type: Mapped["ValueType"] = relationship(back_populates="values")
