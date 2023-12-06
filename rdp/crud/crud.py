@@ -1,5 +1,10 @@
 import logging
+import pandas as pd
+
+from datetime import datetime
 from typing import List
+
+from io import StringIO
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -82,7 +87,18 @@ class Crud:
         device_name: str = None,
         room_id: int = None,
     ) -> Device:
-        new_id = None
+        """Update or add a device
+
+        Args:
+            device_id (int, optional): Device id to be modified (if None a new Device is added), Default to None.
+            device_device (str, optional): Device path where sensor data is coming from. Defaults to None.
+            device_name (str, optional): Device name. Defaults to None.
+
+        Returns:
+            Device: The added or updated device
+        """
+        db_device = None
+        tmp_device = None
         with Session(self._engine) as session:
             db_device = None
             if device_id is not None:
@@ -113,6 +129,15 @@ class Crud:
     def add_or_update_room(
         self, room_id: int = None, room_name: str = None, room_group_id: int = None
     ) -> Room:
+        """Update or add a Room
+
+        Args:
+            room_id (int, optional): Room id to be modified (if None a new Room is added), Default to None.
+            room_name (str, optional): Room name. Defaults to None.
+
+        Returns:
+            Room: The added or updated room
+        """
         new_id = None
         with Session(self._engine) as session:
             db_room = None
@@ -229,7 +254,15 @@ class Crud:
 
             return session.scalars(stmt).all()
 
-    def get_device(self, id: int):
+    def get_device(self, id: int) -> Device:
+        """Get Device from database.
+
+        Args:
+            id (int): device id
+
+        Returns:
+            Device
+        """
         with Session(self._engine) as session:
             stmt = select(Device).where(Device.id == id)
             return session.scalars(stmt).one()
@@ -251,7 +284,15 @@ class Crud:
                 stmt = stmt.where(RoomGroup.room_group_id == room_group_id)
             return session.scalars(stmt).all()
 
-    def get_room(self, id: int):
+    def get_room(self, id: int) -> Room:
+        """Get Room from database.
+
+        Args:
+            id (int): room id
+
+        Returns:
+            Room
+        """
         with Session(self._engine) as session:
             stmt = select(Room).where(Room.id == id)
             return session.scalars(stmt).one()
@@ -265,3 +306,28 @@ class Crud:
         with Session(self._engine) as session:
             stmt = select(RoomGroup).where(RoomGroup.id == id)
             return session.scalars(stmt).one()
+
+    def load_csv(self, csv_text: str, device_id: int):
+        """Insert data from csv to the database.
+
+        Returns:
+            None
+        """
+        df = pd.read_csv(StringIO(csv_text.decode("utf-8")))
+        df_no_time = df.drop(columns=["time"])
+        no_time_keys = df_no_time.keys()
+        with Session(self._engine) as session:
+            device = session.query(Device).filter(Device.id == device_id).one()
+            for _, row in df.iterrows():
+                for key in no_time_keys:
+                    value_type = (
+                        session.query(ValueType)
+                        .filter(ValueType.type_name == key)
+                        .one()
+                    )
+                    time = datetime.fromisoformat(row["time"]).timestamp()
+                    value = Value(
+                        time=time, value=row[key], value_type=value_type, device=device
+                    )
+                    session.add(value)
+            session.commit()

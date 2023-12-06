@@ -33,10 +33,6 @@ class Value(Base):
     value_type: Mapped["ValueType"] = relationship(back_populates="values")
     device: Mapped["Device"] = relationship(back_populates="values")
 
-    __table_args__ = (
-        UniqueConstraint("time", "value_type_id", "device_id", name="value integrity"),
-    )
-
     def __repr__(self) -> str:
         return f"Value(id={self.id!r}, value_time={self.time!r} value_type={self.value_type.type_name!r}, device={self.device.device},value={self.value})"
 
