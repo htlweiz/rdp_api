@@ -92,6 +92,15 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+@app.get("/sensor/")
+def get_sensors():
+    global crud
+    try:
+        values = crud.get_sensors()
+        return values
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader
@@ -105,7 +114,7 @@ async def startup_event() -> None:
     logger.debug("STARTUP: Sensore reader completed!")
 
 @app.on_event("shutdown")
-async def startup_event():
+async def shutdown_event():
     """stop the character device reader
     """    
     global reader
