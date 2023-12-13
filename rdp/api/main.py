@@ -49,6 +49,35 @@ def read_type(id: int) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found") 
     return value_type 
 
+@app.get("/room/{id}/")
+def get_room(id: int) -> ApiTypes.Room:
+    """returns an explicit room identified by id
+
+    Args:
+        id (int): primary key of the desired value type
+
+    Raises:
+        HTTPException: Thrown if a value type with the given id cannot be accessed
+
+    Returns:
+        ApiTypes.Room: the desired room 
+    """
+    global crud
+    try:
+         return crud.get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/room/")
+def get_rooms() -> List[ApiTypes.Room]:
+    """Implements the get of all rooms
+
+    Returns:
+        List[ApiTypes.Device]: list of available rooms. 
+    """ 
+    global crud
+    return crud.get_rooms()
+
 @app.get("/device/{id}/")
 def get_device(id: int) -> ApiTypes.Device:
     """returns an explicit device identified by id
@@ -60,7 +89,7 @@ def get_device(id: int) -> ApiTypes.Device:
         HTTPException: Thrown if a value type with the given id cannot be accessed
 
     Returns:
-        ApiTypes.Device: the desired value type 
+        ApiTypes.Device: the desired device 
     """
     global crud
     try:
@@ -69,7 +98,7 @@ def get_device(id: int) -> ApiTypes.Device:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.get("/device/")
-def get_devices() -> ApiTypes.Device:
+def read_devices() -> List[ApiTypes.Device]:
     """Implements the get of all devices
 
     Returns:
@@ -105,15 +134,108 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
 
     Args:
         id (int): primary key of the requested device
-        device_name (): 
+        device_name (string):  
 
     Returns:
-        ApiTypes.Value: _description_
+        ApiTypes.Device: _description_
     """
     global crud
     try:
-        crud.add_or_update_device(id, device_name=device.device_name, device_desc=device.device_desc)
+        crud.add_or_update_device(id, device_name=device.device_name, device_desc=device.device_desc, room_id=1)
         return get_device(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/room/{id}/")
+def put_room(id, room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """PUT request to add a device. This api call is used to add a device with a name.
+
+    Args:
+        id (int): primary key of the requested device
+        device_name (): 
+
+    Returns:
+        ApiTypes.Value: desired room values
+    """
+    global crud
+    try:
+        crud.add_or_update_room(id, room_name=room.room_name, location_id=1)
+        return get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.post("/room/{id}/")
+def put_room(room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """POST request to add a room. This api call is used to add a room by autoincrementing the id.
+
+    Args:
+        id (int): primary key of the requested device
+        room_name (string): name of the string 
+
+    Returns:
+        ApiTypes.Value: desired room values
+    """
+    global crud
+    try:
+        id = crud.add_or_update_room(room_name=room.room_name, location_id=1)
+        return get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/location/")
+def get_locations() -> List[ApiTypes.Location]:
+    """Implements the get of all locations
+
+    Returns:
+        List[ApiTypes.Device]: list of available locations. 
+    """ 
+    global crud
+    return crud.get_locations()
+
+@app.get("/value/{device_id}")
+def get_values_by_device_id(device_id: int) -> List[ApiTypes.Value]:
+    """Implements the get of all values by device_id
+
+    Returns:
+        List[ApiTypes.Device]: list of available locations. 
+    """ 
+    global crud
+    return crud.get_value_by_device_id(device_id)
+
+@app.get("/location/{id}/")
+def get_location(id: int) -> ApiTypes.Location:
+    """returns an explicit location identified by id
+
+    Args:
+        id (int): primary key of the desired location
+
+    Raises:
+        HTTPException: Thrown if a location with the given id cannot be accessed
+
+    Returns:
+        ApiTypes.Location: the desired location 
+    """
+    global crud
+    try:
+         return crud.get_location(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/location/{id}/")
+def put_locatation(id, location: ApiTypes.LocationNoID) -> ApiTypes.Location:
+    """PUT request to add a location. This api call is used to add a location.
+
+    Args:
+        id (int): primary key of the requested location
+        location (string): name of the location 
+
+    Returns:
+        ApiTypes.Location: the desired location
+    """
+    global crud
+    try:
+        crud.add_or_update_location(id, location=location.location)
+        return get_location(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 

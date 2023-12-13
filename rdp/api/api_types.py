@@ -19,8 +19,22 @@ class Value(ValueNoID):
 class DeviceNoID(BaseModel):
     device_name: str
     device_desc: str
+    room_id: int
 
 class Device(DeviceNoID):
+    id: int
+
+class RoomNoID(BaseModel):
+    room_name: str
+    location_id: int
+
+class Room(RoomNoID):
+    id: int
+
+class LocationNoID(BaseModel):
+    location: str
+
+class Location(LocationNoID):
     id: int
 
 class ApiDescription(BaseModel):

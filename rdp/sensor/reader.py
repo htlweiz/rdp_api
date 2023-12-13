@@ -24,7 +24,9 @@ class Reader:
         thread.join()
 
     def _run(self) -> None:
-        device_id = self._crud.add_or_update_device(device_id=1, device_name='device1', device_desc='something')
+        location_id = self._crud.add_or_update_location(location_id=1, location='graz')
+        room_id = self._crud.add_or_update_room(room_id=1, room_name='room1', location_id=location_id)
+        device_id = self._crud.add_or_update_device(device_id=1, device_name='device1', device_desc='something,', room_id=room_id)
         count = 0
         while self._thread is not None:
             logger.info("A")
