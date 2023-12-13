@@ -98,8 +98,8 @@ class Crud:
         """Add a device to the database.
 
         Args:
-            name (str): A name for the device
-            location_id (int): A location to the device
+            _name (str): A name for the location
+            _address (int): A address to the location
         """
         with Session(self._engine) as session:
             stmt = select(Location).where(Location.name == _name)
