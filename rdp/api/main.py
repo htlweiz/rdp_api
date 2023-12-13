@@ -37,7 +37,7 @@ def read_type(id: int) -> ApiTypes.ValueType:
         id (int): primary key of the desired value type
 
     Raises:
-        HTTPException: Thrown it a value type with the given id cannot be accessed
+        HTTPException: Thrown if a value type with the given id cannot be accessed
 
     Returns:
         ApiTypes.ValueType: the desired value type 
@@ -51,7 +51,7 @@ def read_type(id: int) -> ApiTypes.ValueType:
 
 @app.put("/type/{id}/")
 def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
-    """PUT request to a specail valuetype. This api call is used to change a value type object.
+    """PUT request to a special valuetype. This api call is used to change a value type object.
 
     Args:
         id (int): primary key of the requested value type
@@ -111,7 +111,7 @@ async def startup_event() -> None:
     crud = Crud(engine)
     reader = Reader(crud)
     reader.start()
-    logger.debug("STARTUP: Sensore reader completed!")
+    logger.debug("STARTUP: Sensor reader completed!")
 
 @app.on_event("shutdown")
 async def shutdown_event():
