@@ -79,13 +79,30 @@ def get_devices() -> List[ApiTypes.Device]:
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
-@app.post("/add_device/")
-def add_device(name: str, location: str):
+@app.get("/location/")
+def get_locations() -> List[ApiTypes.Location]:
     global crud
     try:
-        device = crud.add_device(name, location)
+        locations = crud.get_locations()
+        return locations
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Item not found")
+
+@app.post("/add_device/")
+def add_device(name: str, location_id: int):
+    global crud
+    try:
+        device = crud.add_device(name, location_id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Could not add device")
+
+@app.post("/add_location/")
+def add_location(name: str, address: str):
+    global crud
+    try:
+        location = crud.add_location(name, address)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Could not add Location")
 
 @app.get("/value/")
 def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.Value]:

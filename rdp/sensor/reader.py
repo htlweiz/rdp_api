@@ -26,9 +26,14 @@ class Reader:
 
     def _run(self) -> None:
         count = 0
-        self._crud.add_device('device_0', 'test_location')
-        self._crud.add_device('device_1', 'test_location')
-        self._crud.add_device('device_2', 'test_location')
+        self._crud.add_location('location_0', 'oberdorf')
+        self._crud.add_location('location_1', 'unterdorf')
+        self._crud.add_location('location_2', 'hinterdorf')
+
+        self._crud.add_device('device_0', 0)
+        self._crud.add_device('device_1', 1)
+        self._crud.add_device('device_2', 2)
+        
         while self._thread is not None:
             logger.info("A")
             with open("/dev/rdp_cdev", "rb") as f:

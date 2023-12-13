@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType, Device
+from .model import Base, Value, ValueType, Device, Location
 
 
 class Crud:
@@ -73,22 +73,48 @@ class Crud:
                 logging.error("Integrity")
                 raise
 
-    def add_device(self, name: str, location: str) -> int:
+    def add_device(self, _name: str, _location_id: int) -> int:
         """Add a device to the database.
 
         Args:
             name (str): A name for the device
-            location (str): A location to the device
+            location_id (int): A location to the device
         """
         with Session(self._engine) as session:
-            db_device = Device(name=name, location=location)
+            stmt = select(Device).where(Device.name == _name)
+            result = session.execute(stmt)
+            db_device = result.scalars().all()
 
-            session.add(db_device)
-            try:
-                session.commit()
-            except IntegrityError:
-                logging.error("Integrity")
-                raise
+            if db_device == []:
+                db_device = Device(name=_name, location_id=_location_id)
+
+                session.add(db_device)
+                try:
+                    session.commit()
+                except IntegrityError:
+                    logging.error("Integrity")
+
+    def add_location(self, _name: str, _address: str) -> int:
+        """Add a device to the database.
+
+        Args:
+            name (str): A name for the device
+            location_id (int): A location to the device
+        """
+        with Session(self._engine) as session:
+            stmt = select(Location).where(Location.name == _name)
+            result = session.execute(stmt)
+            db_location = result.scalars().all()
+
+            if db_location == []:
+                db_location = Location(name=_name, address=_address)
+
+                session.add(db_location)
+                try:
+                    session.commit()
+                except IntegrityError:
+                    logging.error("Integrity")
+                    raise
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
@@ -145,6 +171,11 @@ class Crud:
     def get_devices(self) -> List[Device]:
         with Session(self._engine) as session:
             stmt = select(Device)
+            return session.scalars(stmt).all()
+
+    def get_locations(self) -> List[Location]:
+        with Session(self._engine) as session:
+            stmt = select(Location)
             return session.scalars(stmt).all()
 
 #    def order_values(self) -> List(ValueType):

@@ -42,7 +42,17 @@ class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    location: Mapped[str]
+
+    location_id: Mapped[int] = mapped_column(ForeignKey("location.id"))
 
     def __repr__(self) -> str:
         return f"Device(id={self.id!r}, Name={self.name})"
+
+class Location(Base):
+    __tablename__ = "location"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    address: Mapped[str]
+
+    def __repr__(self) -> str:
+        return f"Location(id={self.id!r}, Name={self.name}, Address={self.address})"
