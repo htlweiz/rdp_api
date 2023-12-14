@@ -170,8 +170,8 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
     global crud
     try:
-        crud.add_or_update_device(
-            id, device_device=device.name, device_name=device.name, postalCode=device.postalCode, city=device.city
+        crud.update_device(
+            id, device_device=device.name, device_name=device.name, postalCode=device.postalCode, city=device.city, room_id=device.room_id
         )
         return get_device(id)
     except crud.NoResultFound:
@@ -179,17 +179,9 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     except crud.IntegrityError:
         raise HTTPException(status_code=400)
 
+
 @app.get("/device/")
 def get_devices() -> List[ApiTypes.Device]:
-    """
-    Retrieves all devices.
-
-    Returns:
-        List[ApiTypes.Device]: List of devices.
-
-    Raises:
-        HTTPException: If no devices are found (status_code=404).
-    """
     global crud
     try:
         return crud.get_devices()
@@ -217,6 +209,232 @@ def get_device(id):
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+@app.get("/room/{id}")
+def get_room(id) -> ApiTypes.Room:
+    """
+    Retrieve a room by ID.
+
+    Args:
+        id: The ID of the room to retrieve.
+
+    Returns:
+        ApiTypes.Room: The room object.
+        
+    Raises:
+        HTTPException: If the room is not found (status code 404).
+    """
+    global crud
+    try:
+        return crud.get_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/room/")
+def get_rooms() -> List[ApiTypes.Room]:
+    """
+    Retrieve all rooms.
+
+    Returns:
+        List[ApiTypes.Room]: A list of room objects.
+        
+    Raises:
+        HTTPException: If no rooms are found (status code 404).
+    """
+    global crud
+    try:
+        return crud.get_rooms()
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/room/{id}/")
+def put_room(id, room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """
+    Update or create a room.
+
+    Args:
+        id: The ID of the room to update/create.
+        room: The room data.
+
+    Returns:
+        ApiTypes.Room: The updated/created room object.
+        
+    Raises:
+        HTTPException: If the room is not found (status code 404) or an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        room = crud.update_room(id, room_name=room.name, room_nr=room.room_nr, location_id=room.location_id)
+        return get_room(room.id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
+
+@app.get("/location/{id}")
+def get_location(id) -> ApiTypes.Location:
+    """
+    Retrieve location by ID.
+
+    Args:
+        id (int): The unique identifier for the location.
+
+    Returns:
+        ApiTypes.Location: The location details for the specified ID.
+
+    Raises:
+        HTTPException: If the item is not found (status code 404).
+    """
+    global crud
+    try:
+        return crud.get_location(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.get("/location/")
+def get_locations() -> List[ApiTypes.Location]:
+    """
+    Retrieve all locations.
+
+    Returns:
+        List[ApiTypes.Location]: List of all locations.
+
+    Raises:
+        HTTPException: If no items are found (status code 404).
+    """
+    global crud
+    try:
+        return crud.get_locations()
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+@app.put("/location/{id}/")
+def put_location(id, location: ApiTypes.LocationNoId) -> ApiTypes.Location:
+    """
+    Update or add a location by ID.
+
+    Args:
+        id (int): The unique identifier for the location.
+        location (ApiTypes.LocationNoId): The location details without ID.
+
+    Returns:
+        ApiTypes.Location: The updated or newly added location details.
+
+    Raises:
+        HTTPException: If the item is not found (status code 404) or if an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        location = crud.update_location(id, location_name=location.name, city=location.city)
+        return get_location(location.id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
+
+#Post
+@app.post("/location/")
+def post_location(location: ApiTypes.LocationNoId) -> ApiTypes.Location:
+    """
+    Add a new location.
+
+    Args:
+        location (ApiTypes.LocationNoId): The location details without ID.
+
+    Returns:
+        ApiTypes.Location: The newly added location details.
+
+    Raises:
+        HTTPException: If an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        location = crud.add_location(location_name=location.name, city=location.city)
+        return get_location(location.id)
+    except crud.IntegrityError as e:
+        raise HTTPException(status_code=400)
+
+@app.post("/device/")
+def post_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
+    """
+    Add a new device.
+
+    Args:
+        device (ApiTypes.DeviceNoID): The device details without ID.
+
+    Returns:
+        ApiTypes.Device: The newly added device details.
+
+    Raises:
+        HTTPException: If an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        new_device = crud.add_device(
+            device_device=device.name,
+            device_name=device.name,
+            postalCode=device.postalCode,
+            city=device.city,
+            room_id=device.room_id
+        )
+        return new_device
+    except crud.IntegrityError as e:
+        raise HTTPException(status_code=400)
+
+@app.post("/room/")
+def post_room(room: ApiTypes.RoomNoID) -> ApiTypes.Room:
+    """
+    Create a new room.
+
+    Args:
+        room: The room data.
+
+    Returns:
+        ApiTypes.Room: The newly created room object.
+        
+    Raises:
+        HTTPException: If an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        new_room = crud.add_room(
+            room_name=room.name,
+            room_nr=room.room_nr,
+            location_id=room.location_id
+        )
+        return new_room
+    except crud.IntegrityError as e:
+        raise HTTPException(status_code=400)
+
+# Get Value by device_id
+@app.get("/value/{device_id}")
+def get_values_by_device_id(device_id: int) -> List[ApiTypes.Value]:
+    """
+    Get values by device ID.
+
+    Args:
+        device_id (int): The ID of the device.
+
+    Returns:
+        List[ApiTypes.Value]: A list of values associated with the device.
+
+    Raises:
+        HTTPException: If the device is not found (status code 404) or an integrity error occurs (status code 400).
+    """
+    global crud
+    try:
+        return crud.get_value_by_device_id(device_id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""
@@ -236,4 +454,3 @@ async def shutdown_event():
     logger.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
     logger.info("SHUTDOWN: Sensor reader completed!")
-

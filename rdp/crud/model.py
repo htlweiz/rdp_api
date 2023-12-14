@@ -45,9 +45,37 @@ class Device(Base):
     device: Mapped[str]
     postalCode: Mapped[int]
     city: Mapped[str]
+    room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=True)
 
+    room: Mapped["Room"] = relationship(back_populates="devices")
     values: Mapped[List["Value"]] = relationship(
         back_populates="device", cascade="all, delete-orphan"
     )
 
     __table_args__ = (UniqueConstraint("device", name="device integrity"),)
+
+
+class Room(Base):
+    __tablename__ = "room"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    room_nr: Mapped[int]
+    location_id: Mapped[int] = mapped_column(
+        ForeignKey("location.id"), nullable=True
+    )
+
+    devices: Mapped[List["Device"]] = relationship(
+        back_populates="room", cascade="all, delete-orphan"
+    )
+
+    location: Mapped["Location"] = relationship(back_populates="rooms")
+
+class Location(Base):
+    __tablename__ = "location"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    city: Mapped[str]
+    
+    rooms: Mapped[List["Room"]] = relationship(
+        back_populates="location", cascade="all, delete-orphan"
+    )

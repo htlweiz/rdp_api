@@ -5,13 +5,10 @@ class DeviceNoID(BaseModel):
     device: str
     postalCode: int
     city: str
+    room_id: int
 
-class Device(BaseModel):
+class Device(DeviceNoID):
     id: int
-    name: str
-    device: str
-    postalCode: int
-    city: str
 
 class ValueTypeNoID(BaseModel):
     type_name: str
@@ -26,12 +23,33 @@ class ValueNoID(BaseModel):
     value_type_id: int
     time: int
     value: float
+    device_id: int
+
 
 class Value(ValueNoID):
     id: int
 
+class RoomNoID(BaseModel):
+    name: str
+    room_nr: int
+    location_id: int
+    
+
+class Room(RoomNoID):
+    id: int
+
+class LocationNoId(BaseModel):
+    name: str
+    city: str
+
+class Location(LocationNoId):
+    id: int
 
 class ApiDescription(BaseModel):
     description: str = "This is the Api"
     value_type_link: str = "/type"
     value_link: str = "/value"
+    device_link: str = "/device"
+    room_link: str = "/room"
+    location_link: str = "/location"
+
