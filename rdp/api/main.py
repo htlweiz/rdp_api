@@ -104,6 +104,22 @@ def add_location(name: str, address: str):
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Could not add Location")
 
+@app.post("/add_type/")
+def add_type(type_id: int, type_name: str, type_unit: str):
+    global crud
+    try:
+        location = crud.add_or_update_value_type(type_id, type_name, type_unit)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Could not add Type")
+
+@app.post("/add_value/")
+def add_value(value_time: int, value_type: int, value_value: float, value_device: int):
+    global crud
+    try:
+        location = crud.add_value(value_time, value_type, value_value, value_device)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, deltail="Could not add Value")
+
 @app.get("/value/")
 def get_values(type_id:int=None, start:int=None, end:int=None, device:int=None) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
@@ -139,7 +155,7 @@ async def startup_event() -> None:
     logger.debug("STARTUP: Sensore reader completed!")
 
 @app.on_event("shutdown")
-async def startup_event():
+async def shutdown_event():
     """stop the character device reader
     """
     global reader
