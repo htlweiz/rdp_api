@@ -91,6 +91,7 @@ class Crud:
                 session.add(db_device)
                 try:
                     session.commit()
+                    return db_device.id
                 except IntegrityError:
                     logging.error("Integrity")
 
@@ -99,22 +100,27 @@ class Crud:
 
         Args:
             _name (str): A name for the location
-            _address (int): A address to the location
+            _address (int): An address for the location
         """
         with Session(self._engine) as session:
             stmt = select(Location).where(Location.name == _name)
             result = session.execute(stmt)
-            db_location = result.scalars().all()
+            db_location = result.scalars().first()
 
-            if db_location == []:
+            if db_location is None:
                 db_location = Location(name=_name, address=_address)
-
                 session.add(db_location)
+
                 try:
                     session.commit()
+                    return db_location.id
                 except IntegrityError:
                     logging.error("Integrity")
                     raise
+            else:
+                # If location already exists, you can decide how to handle it
+                print("Location already exists with id:", db_location.id)
+                return db_location.id
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types

@@ -92,7 +92,8 @@ def get_locations() -> List[ApiTypes.Location]:
 def add_device(name: str, location_id: int):
     global crud
     try:
-        device = crud.add_device(name, location_id)
+        device_id = crud.add_device(name, location_id)
+        return device_id
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Could not add device")
 
@@ -100,7 +101,8 @@ def add_device(name: str, location_id: int):
 def add_location(name: str, address: str):
     global crud
     try:
-        location = crud.add_location(name, address)
+        location_id = crud.add_location(name, address)
+        return location_id
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Could not add Location")
 
