@@ -4,6 +4,18 @@ from datetime import datetime, timezone
 url = "http://172.31.182.118:8080/api"
 
 def read_csv(filename, address, device):
+    """
+    Reads data from a CSV file and sends it to a REST API for storage.
+
+    Parameters:
+    - filename (str): The absolute file path of the CSV file.
+    - address (str): The address information for the location.
+    - device (str): The name of the device.
+
+    Returns:
+    None
+    """
+    # Add location
     location_response = requests.post(url + f'/add_location/?name={address}&address={address}')
     location_id = 0
 
@@ -14,6 +26,7 @@ def read_csv(filename, address, device):
         print("Error adding location:", location_response.text)
         return
 
+    # Add device
     device_response = requests.post(url + f'/add_device/?name={device}&location_id={location_id}')
     device_id = 0
 
@@ -24,6 +37,7 @@ def read_csv(filename, address, device):
         print("Error adding device:", device_response.text)
         return
 
+    # Read and process CSV data
     data = []
     with open(filename) as file:
         l = file.read().splitlines()
@@ -31,12 +45,15 @@ def read_csv(filename, address, device):
             line = line.strip().split(',')
             data.append(line)
         print(data[1])
+
+        # Add types
         requests.post(url + f'/add_type/?type_id=1&type_name={data[0][2]}&type_unit=percent')
         requests.post(url + f'/add_type/?type_id=2&type_name={data[0][3]}&type_unit=celsius')
+
+        # Add values
         body = data[1:]
         for line in body:
             time_format = "%Y-%m-%dT%H:%M%z"
-
             dt_object = datetime.strptime(line[0], time_format)
             timestamp = int(dt_object.timestamp())
 
