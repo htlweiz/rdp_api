@@ -1,6 +1,6 @@
-from typing import Union, List
+from typing import Union, List, Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, Form
 
 from rdp.sensor import Reader
 from rdp.crud import create_engine, Crud
@@ -357,6 +357,7 @@ def post_location(location: ApiTypes.LocationNoId) -> ApiTypes.Location:
     except crud.IntegrityError as e:
         raise HTTPException(status_code=400)
 
+
 @app.post("/device/")
 def post_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     """
@@ -383,6 +384,7 @@ def post_device(device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
         return new_device
     except crud.IntegrityError as e:
         raise HTTPException(status_code=400)
+
 
 @app.post("/room/")
 def post_room(room: ApiTypes.RoomNoID) -> ApiTypes.Room:
@@ -434,6 +436,14 @@ def get_values_by_device_id(device_id: int) -> List[ApiTypes.Value]:
             status_code=400,
         )
 
+
+@app.post("/value/")
+def post_new_value(value_time: int, value_type_id: int, device_id: int, value_value: float) -> None:
+    global crud
+    try:
+        crud.add_new_value(value_time, value_type_id, device_id, value_value)
+    except IntegrityError:
+        raise HTTPException(status_code=500, detail="Integrity error while adding new value")
 
 @app.on_event("startup")
 async def startup_event() -> None:

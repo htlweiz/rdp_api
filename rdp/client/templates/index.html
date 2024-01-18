@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV Upload to API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header, footer {
+            background-color: #0C0B39;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        header{
+            margin-bottom: 50px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .message{
+            color: green;
+        }
+        .upload-form {
+            width: 50%;
+            margin: auto;
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .upload-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #0C0B39;
+            color: white;
+            cursor: pointer;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+        tr {
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .collapsible {
+            display: none;
+            overflow: hidden;
+        }
+
+        form div {
+        margin-bottom: 10px;
+        }
+
+        form label {
+            display: inline-block;
+            width: 150px;
+        }
+
+        form input {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CSV UPLOAD TO API</h1>
+    </header>
+
+    <div class="container">
+        <div class="upload-form">
+
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
+                <input type="file" name="file" accept=".csv" required>
+                <br><br>
+                <input type="submit" value="Upload File" class="upload-btn">
+            </form>
+
+            <form method="GET" action="{{ url_for('get_devices') }}">
+                <input type="submit" value="Get Devices" class="upload-btn">
+            </form>
+
+           <form method="POST" action="{{ url_for('add_device') }}">
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div>
+                    <label for="device">Device:</label>
+                    <input type="text" name="device" required>
+                </div>
+                <div>
+                    <label for="postal_code">Postal Code:</label>
+                    <input type="text" name="postal_code" required>
+                </div>
+                <div>
+                    <label for="city">City:</label>
+                    <input type="text" name="city" required>
+                </div>
+                <div>
+                    <label for="room_id">Room ID:</label>
+                    <input type="number" name="room_id" required>
+                </div>
+                <br><br>
+                <input type="submit" value="Add Values for device" class="upload-btn">
+            </form>
+
+        </div>
+
+        <div class="image-container">
+            <img src="/static/image.png" alt="Uploaded Image">
+        </div>
+
+        <div class="message">
+            {% if success_message %}
+                <p>{{ success_message }}</p>
+            {% endif %}
+        </div>
+
+        {% if fetched_devices %}
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th onclick="toggleTable()">Devices</th>
+                    </tr>
+                </thead>
+                <tbody class="collapsible">
+                    <tr>
+                        <th>ID</th>
+                        <th>Device</th>
+                        <th>PostalCode</th>
+                        <th>City</th>
+                    </tr>
+                    {% for item in fetched_devices %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.device }}</td>
+                            <td>{{ item.postalCode }}</td>
+                            <td>{{ item.city }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>&copy; 2024</p>
+    </footer>
+
+    <script>
+        function toggleTable() {
+            var tableBody = document.querySelector('.collapsible');
+            tableBody.style.display = (tableBody.style.display === 'none' || tableBody.style.display === '') ? 'table-row-group' : 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
@@ -463,3 +464,19 @@ class Crud:
             session.commit()
             session.refresh(new_device)
             return new_device
+
+   
+    def add_new_value(self, value_time: int, value_type_id: int, device_id: int, value_value: float) -> None:
+            with Session(self._engine) as session:
+                try:
+                    new_value = Value(
+                        time=value_time,
+                        value_type_id=value_type_id,
+                        device_id=device_id,
+                        value=value_value
+                    )
+                    session.add(new_value)
+                    session.commit()
+                except IntegrityError:
+                    session.rollback()
+                    raise

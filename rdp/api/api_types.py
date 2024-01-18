@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List, Dict
 
 class DeviceNoID(BaseModel):
     name: str
@@ -33,7 +34,6 @@ class RoomNoID(BaseModel):
     name: str
     room_nr: int
     location_id: int
-    
 
 class Room(RoomNoID):
     id: int
@@ -44,6 +44,12 @@ class LocationNoId(BaseModel):
 
 class Location(LocationNoId):
     id: int
+
+class ValueInput(BaseModel):
+    value_time: int
+    value_type_id: int
+    device_id: int
+    value: float
 
 class ApiDescription(BaseModel):
     description: str = "This is the Api"
