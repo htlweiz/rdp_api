@@ -56,9 +56,9 @@ class Crud:
 
         Args:
             value_time (int): unix time stamp of the value.
-            value_type (int): Valuetype id of the given value. 
+            value_type (int): Valuetype id of the given value.
             value_value (float): The measurement value as float.
-        """        
+        """
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
             db_type = self.add_or_update_value_type(value_type)
@@ -75,7 +75,7 @@ class Crud:
         """Get all configured value types
 
         Returns:
-            List[ValueType]: List of ValueType objects. 
+            List[ValueType]: List of ValueType objects.
         """
         with Session(self._engine) as session:
             stmt = select(ValueType)

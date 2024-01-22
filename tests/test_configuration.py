@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 from rdp.crud.crud import Crud
 from rdp.crud.model import Value, ValueType
 
+
 def test_dummy():
     assert True
+
 
 def test_db_empty(crud_session_in_memory: Tuple[Crud, Session]):
     _, session = crud_session_in_memory

@@ -7,14 +7,17 @@ from sqlalchemy.orm import Session
 from rdp.crud.crud import Crud
 from rdp.crud.model import ValueType
 
+
 def test_get_value_types_invalid(crud_in_memory: Crud):
     for item in [-13, -1, 0, 1, 5643, 99999999999999, "Test", 3.2]:
         with pytest.raises(crud_in_memory.NoResultFound):
             crud_in_memory.get_value_type(item)
 
+
 def test_get_value_types_empty(crud_in_memory: Crud):
     result = crud_in_memory.get_value_types()
     assert result == []
+
 
 def test_get_value_types(crud_session_in_memory: Tuple[Crud, Session]):
     crud_in_memory, session = crud_session_in_memory
@@ -35,6 +38,7 @@ def test_get_value_types(crud_session_in_memory: Tuple[Crud, Session]):
         assert value_type.id <= 3
         assert value_type.type_name in ["name", "weight", "size"]
 
+
 def test_get_value_type(crud_session_in_memory: Tuple[Crud, Session]):
     crud_in_memory, session = crud_session_in_memory
 
@@ -52,7 +56,7 @@ def test_get_value_type(crud_session_in_memory: Tuple[Crud, Session]):
     assert result.id == 0
     assert result.type_name == "name"
     assert result.type_unit == "UNIT_0"
-    
+
     result = crud_in_memory.get_value_type(1)
     assert result != None
     assert isinstance(result, ValueType)
@@ -74,6 +78,7 @@ def test_get_value_type(crud_session_in_memory: Tuple[Crud, Session]):
     assert result.type_name == "TYPE_3"
     assert result.type_unit == "UNIT_3"
 
+
 def test_update_value_type_invalid(crud_session_in_memory: Tuple[Crud, Session]):
     crud_in_memory, session = crud_session_in_memory
 
@@ -90,6 +95,7 @@ def test_update_value_type_invalid(crud_session_in_memory: Tuple[Crud, Session])
         crud_in_memory.add_or_update_value_type("test")
     with pytest.raises(crud_in_memory.IntegrityError):
         crud_in_memory.add_or_update_value_type(2.2)
+
 
 def test_update_value_types(crud_session_in_memory: Tuple[Crud, Session]):
     crud_in_memory, session = crud_session_in_memory
@@ -117,7 +123,9 @@ def test_update_value_types(crud_session_in_memory: Tuple[Crud, Session]):
             assert value_type.type_name in ["name", "wwwwww", "size"]
 
     # update value type
-    crud_in_memory.add_or_update_value_type(value_type_id=1, value_type_name="weight", value_type_unit="kg")
+    crud_in_memory.add_or_update_value_type(
+        value_type_id=1, value_type_name="weight", value_type_unit="kg"
+    )
 
     # check if value types have changed
     with session() as s:
