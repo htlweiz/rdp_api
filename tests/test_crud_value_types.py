@@ -1,6 +1,6 @@
 from typing import Tuple
-import pytest
 
+import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -30,7 +30,7 @@ def test_get_value_types(crud_session_in_memory: Tuple[Crud, Session]):
         s.commit()
 
     result = crud_in_memory.get_value_types()
-    assert result != None
+    assert result is not None
     assert len(result) == 3
     for value_type in result:
         assert isinstance(value_type, ValueType)
@@ -51,28 +51,28 @@ def test_get_value_type(crud_session_in_memory: Tuple[Crud, Session]):
         s.commit()
 
     result = crud_in_memory.get_value_type(0)
-    assert result != None
+    assert result is not None
     assert isinstance(result, ValueType)
     assert result.id == 0
     assert result.type_name == "name"
     assert result.type_unit == "UNIT_0"
 
     result = crud_in_memory.get_value_type(1)
-    assert result != None
+    assert result is not None
     assert isinstance(result, ValueType)
     assert result.id == 1
     assert result.type_name == "weight"
     assert result.type_unit == "kg"
 
     result = crud_in_memory.get_value_type(2)
-    assert result != None
+    assert result is not None
     assert isinstance(result, ValueType)
     assert result.id == 2
     assert result.type_name == "size"
     assert result.type_unit == "cm"
 
     result = crud_in_memory.get_value_type(3)
-    assert result != None
+    assert result is not None
     assert isinstance(result, ValueType)
     assert result.id == 3
     assert result.type_name == "TYPE_3"
@@ -113,9 +113,9 @@ def test_update_value_types(crud_session_in_memory: Tuple[Crud, Session]):
 
     # check if value types got added
     with session() as s:
-        stmt = select(ValueType)
-        result = s.scalars(stmt).all()
-        assert result != None
+        statement = select(ValueType)
+        result = s.scalars(statement).all()
+        assert result is not None
         assert len(result) == 3
         for value_type in result:
             assert isinstance(value_type, ValueType)
@@ -129,9 +129,9 @@ def test_update_value_types(crud_session_in_memory: Tuple[Crud, Session]):
 
     # check if value types have changed
     with session() as s:
-        stmt = select(ValueType)
-        result = s.scalars(stmt).all()
-        assert result != None
+        statement = select(ValueType)
+        result = s.scalars(statement).all()
+        assert result is not None
         assert len(result) == 3
         for value_type in result:
             assert isinstance(value_type, ValueType)

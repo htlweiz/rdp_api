@@ -1,11 +1,12 @@
-from typing import Union, List
+import logging
+from typing import List
 
 from fastapi import FastAPI, HTTPException
 
+from rdp.crud import Crud, create_engine
 from rdp.sensor import Reader
-from rdp.crud import create_engine, Crud
+
 from . import api_types as ApiTypes
-import logging
 
 logger = logging.getLogger("rdp.api")
 app = FastAPI()
@@ -33,67 +34,82 @@ def read_types() -> List[ApiTypes.ValueType]:
 
 
 @app.get("/type/{id}/")
-def read_type(id: int) -> ApiTypes.ValueType:
+def read_type(type_id: int) -> ApiTypes.ValueType:
     """returns an explicit value type identified by id
 
     Args:
         id (int): primary key of the desired value type
 
     Raises:
-        HTTPException: Thrown if a value type with the given id cannot be accessed
+        HTTPException: Thrown if a value type with the given id cannot be
+        accessed
 
     Returns:
         ApiTypes.ValueType: the desired value type
     """
     global crud
     try:
-        return crud.get_value_type(id)
+        return crud.get_value_type(type_id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
-    return value_type
 
 
 @app.put("/type/{id}/")
-def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
-    """PUT request to a special valuetype. This api call is used to change a value type object.
+def put_type(type_id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
+    """PUT request to a special valuetype. This api call is used to change a
+       value type object.
 
     Args:
         id (int): primary key of the requested value type
-        value_type (ApiTypes.ValueTypeNoID): json object representing the new state of the value type.
+        value_type (ApiTypes.ValueTypeNoID): json object representing the new
+        state of the value type.
 
     Raises:
-        HTTPException: Thrown if a value type with the given id cannot be accessed
+        HTTPException: Thrown if a value type with the given id cannot be
+        accessed
 
     Returns:
-        ApiTypes.ValueType: the requested value type after persisted in the database.
+        ApiTypes.ValueType: the requested value type after persisted in the
+        database.
     """
     global crud
     try:
         crud.add_or_update_value_type(
-            id,
+            type_id,
             value_type_name=value_type.type_name,
             value_type_unit=value_type.type_unit,
         )
-        return read_type(id)
+        return read_type(type_id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
 @app.get("/value/minmax/")
-def get_minmax_values(type_id: int, start: int = None, end: int = None):
-    return {"min": 0, "max": 1}
+def get_min_max_values(
+    type_id: int, start: int = None, end: int = None
+) -> List[ApiTypes.Value]:
+    global crud
+    try:
+        min_max = crud.get_min_max_values(type_id, start=start, end=end)
+        return min_max
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @app.get("/value/")
 def get_values(
     type_id: int = None, start: int = None, end: int = None
 ) -> List[ApiTypes.Value]:
-    """Get values from the database. The default is to return all available values. This result can be filtered.
+    """Get values from the database. The default is to return all available
+       values. This result can be filtered.
 
     Args:
-        type_id (int, optional): If set, only values of this type are returned. Defaults to None.
-        start (int, optional): If set, only values at least as new are returned. Defaults to None.
-        end (int, optional): If set, only values not newer than this are returned. Defaults to None.
+        type_id (int, optional): If set, only values of this type are returned.
+                                 Defaults to None.
+        start (int, optional):   If set, only values at least as new are
+                                 returned. Defaults to None.
+        end (int, optional):     If set, only values not newer than this are
+                                 returned. Defaults to None.
 
     Raises:
         HTTPException: _description_
@@ -106,7 +122,7 @@ def get_values(
         values = crud.get_values(type_id, start, end)
         return values
     except crud.NoResultFound:
-        raise HTTPException(status_code=404, deltail="Item not found")
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @app.on_event("startup")

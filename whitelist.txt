@@ -1,0 +1,8 @@
+fastapi
+rdp
+sqlalchemy
+exc
+orm
+sessionmaker
+tablename
+pydantic

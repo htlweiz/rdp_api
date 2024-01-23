@@ -24,4 +24,6 @@ class Value(Base):
     value_type: Mapped["ValueType"] = relationship(back_populates="values")
 
     def __repr__(self) -> str:
-        return f"Value(id={self.id!r}, value_type={self.value_type.type_name!r}, value={self.value})" 
+        return_value = f"Value(id={self.id!r}, value_type={self.value_type.type_name!r},"
+        return_value += f" value={self.value})"
+        return return_value

@@ -1,10 +1,7 @@
 from typing import List
-from typing import Optional
-from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy import String, Float, DateTime
 
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.orm import sessionmaker
 
 
 class Base(DeclarativeBase):
@@ -39,4 +36,6 @@ class Value(Base):
     )
 
     def __repr__(self) -> str:
-        return f"Value(id={self.id!r}, value_time={self.time!r} value_type={self.value_type.type_name!r}, value={self.value})"
+        return_value = f"Value(id={self.id!r}, value_time={self.time!r} "
+        return_value += f"value_type={self.value_type.type_name!r}, value={self.value})"
+        return return_value

@@ -15,11 +15,11 @@ def test_db_empty(crud_session_in_memory: Tuple[Crud, Session]):
     _, session = crud_session_in_memory
 
     with session() as s:
-        stmt = select(ValueType)
-        result = s.scalars(stmt).all()
+        statement = select(ValueType)
+        result = s.scalars(statement).all()
     assert result == []
 
     with session() as s:
-        stmt = select(Value)
-        result = s.scalars(stmt).all()
+        statement = select(Value)
+        result = s.scalars(statement).all()
     assert result == []

@@ -35,19 +35,19 @@ class Reader:
                 value_time = 0
                 for i in range(8):
                     value_time |= test[i] << 8 * i
-                type_num = 0
+                type_number = 0
                 for i in range(4):
-                    type_num |= test[i + 8] << 8 * i
+                    type_number |= test[i + 8] << 8 * i
                 value = 0.0
                 value = struct.unpack("f", test[-4::])
                 logger.debug(
                     "Read one time: %d type :%d and value %f",
                     value_time,
-                    type_num,
+                    type_number,
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0])
+                    self._crud.add_value(value_time, type_number, value[0])
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break
