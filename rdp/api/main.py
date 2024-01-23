@@ -33,7 +33,7 @@ def read_types() -> List[ApiTypes.ValueType]:
     return crud.get_value_types()
 
 
-@app.get("/type/{id}/")
+@app.get("/type/{type_id}/")
 def read_type(type_id: int) -> ApiTypes.ValueType:
     """returns an explicit value type identified by id
 
@@ -54,7 +54,7 @@ def read_type(type_id: int) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.put("/type/{id}/")
+@app.put("/type/{type_id}/")
 def put_type(type_id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
     """PUT request to a special valuetype. This api call is used to change a
        value type object.
@@ -130,7 +130,7 @@ async def startup_event() -> None:
     """start the character device reader"""
     logger.info("STARTUP: Sensor reader!")
     global reader, crud
-    engine = create_engine("sqlite:///rdb.test.db")
+    engine = create_engine("sqlite:///rdp.dev.db")
     crud = Crud(engine)
     reader = Reader(crud)
     reader.start()

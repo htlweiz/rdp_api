@@ -36,12 +36,12 @@ class Crud:
             _type_: _description_
         """
         with Session(self._engine) as session:
-            statement = select(ValueType).where(ValueType.id == value_type_id)
+            statement = select(ValueType).where(ValueType.value_type_id == value_type_id)
             db_type = None
             for single_type in session.scalars(statement):
                 db_type = single_type
             if db_type is None:
-                db_type = ValueType(id=value_type_id)
+                db_type = ValueType(value_type_id=value_type_id)
             if value_type_name:
                 db_type.type_name = value_type_name
             elif not db_type.type_name:
@@ -93,7 +93,7 @@ class Crud:
             ValueType: The ValueType object
         """
         with Session(self._engine) as session:
-            statement = select(ValueType).where(ValueType.id == value_type_id)
+            statement = select(ValueType).where(ValueType.value_type_id == value_type_id)
             return session.scalars(statement).one()
 
     def get_values(
@@ -117,7 +117,8 @@ class Crud:
         with Session(self._engine) as session:
             statement = select(Value)
             if value_type_id is not None:
-                statement = statement.join(Value.value_type).where(ValueType.id == value_type_id)
+                statement = statement.join(Value.value_type).where(
+                    ValueType.value_type_id == value_type_id)
             if start is not None:
                 statement = statement.where(Value.time >= start)
             if end is not None:

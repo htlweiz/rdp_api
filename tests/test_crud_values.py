@@ -60,7 +60,7 @@ def test_add_value(crud_session_in_memory: Tuple[Crud, Session]):
         assert len(result) == 5
         for value_type in result:
             assert isinstance(value_type, Value)
-            assert value_type.id >= 0 and value_type.id <= 5
+            assert value_type.value_type_id >= 0 and value_type.value_type_id <= 5
             assert value_type.value in [76, 180, 105, 77, 181]
             assert value_type.time in [
                 datetime.datetime(year=2023, month=9, day=26, second=1).timestamp(),
@@ -118,7 +118,7 @@ def test_get_values(crud_session_in_memory: Tuple[Crud, Session]):
     assert len(result) == 3
     for value_type in result:
         assert isinstance(value_type, Value)
-        assert value_type.id >= 0 and value_type.id <= 3
+        assert value_type.value_type_id >= 0 and value_type.value_type_id <= 3
         assert value_type.value in [76, 180, 105]
         assert value_type.time in [
             datetime.datetime(year=2023, month=9, day=26, second=1).timestamp(),
