@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
-from .model import Base, Value, ValueType
+from .model import Base, Value, ValueType, Device, Location
 
 
 class Crud:
@@ -51,7 +51,7 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(self, value_time: int, value_type: int, value_value: float, value_device: int) -> None:
         """Add a measurement point to the database.
 
         Args:
@@ -61,15 +61,66 @@ class Crud:
         """        
         with Session(self._engine) as session:
             stmt = select(ValueType).where(ValueType.id == value_type)
+            stmt = select(Device).where(Device.id == value_device)
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
+            # db_device = self.add_device('test', 'testloc')
+            db_value = Value(time=value_time, value=value_value, device_id=value_device, value_type=db_type)
 
-            session.add_all([db_type, db_value])
+            session.add_all([db_value, db_type])
             try:
                 session.commit()
             except IntegrityError:
                 logging.error("Integrity")
                 raise
+
+    def add_device(self, _name: str, _location_id: int, _type: str) -> int:
+        """Add a device to the database.
+
+        Args:
+            name (str): A name for the device
+            location_id (int): A location to the device
+        """
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.name == _name)
+            result = session.execute(stmt)
+            db_device = result.scalars().all()
+
+            if db_device == []:
+                db_device = Device(name=_name, location_id=_location_id, device_type=_type)
+
+                session.add(db_device)
+                try:
+                    session.commit()
+                    return db_device.id
+                except IntegrityError:
+                    logging.error("Integrity")
+
+    def add_location(self, _name: str, _address: str) -> int:
+        """Add a device to the database.
+
+        Args:
+            _name (str): A name for the location
+            _address (int): An address for the location
+        """
+        with Session(self._engine) as session:
+            stmt = select(Location).where(Location.name == _name)
+            result = session.execute(stmt)
+            db_location = result.scalars().first()
+
+            if db_location is None:
+                db_location = Location(name=_name, address=_address)
+                session.add(db_location)
+
+                try:
+                    session.commit()
+                    return db_location.id
+                except IntegrityError:
+                    logging.error("Integrity")
+                    raise
+            else:
+                # If location already exists, you can decide how to handle it
+                print("Location already exists with id:", db_location.id)
+                return db_location.id
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types
@@ -95,7 +146,7 @@ class Crud:
             return session.scalars(stmt).one()
 
     def get_values(
-        self, value_type_id: int = None, start: int = None, end: int = None
+            self, value_type_id: int = None, start: int = None, end: int = None, device: int = None
     ) -> List[Value]:
         """Get Values from database.
 
@@ -117,8 +168,36 @@ class Crud:
                 stmt = stmt.where(Value.time >= start)
             if end is not None:
                 stmt = stmt.where(Value.time <= end)
+            if device is not None:
+                stmt = stmt.where(Value.device_id == device)
             stmt = stmt.order_by(Value.time)
             logging.error(start)
             logging.error(stmt)
 
             return session.scalars(stmt).all()
+
+    def get_devices(self) -> List[Device]:
+        with Session(self._engine) as session:
+            stmt = select(Device)
+            return session.scalars(stmt).all()
+
+    def get_locations(self) -> List[Location]:
+        with Session(self._engine) as session:
+            stmt = select(Location)
+            return session.scalars(stmt).all()
+
+#    def order_values(self) -> List(ValueType):
+#        """Sort the values.
+#
+#        Args:
+#            self
+#
+#        Returns:
+#            List[ValueType]: Sorted list.
+#        """
+#        with Session(self._engine) as session:
+#            stmt = select(Value)
+#            values = session.scalars(stmt).all()
+#        values = sorted(values, key=lambda x: x.value)
+#        return values
+
