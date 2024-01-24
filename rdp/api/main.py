@@ -449,10 +449,10 @@ def post_new_value(value_time: int, value_type_id: int, device_id: int, value_va
         value_value: The value
 
     Returns:
-        ApiTypes.Room: The newly created room object.
+        None.
         
     Raises:
-        HTTPException: If an integrity error occurs (status code 400).
+        HTTPException: If an integrity error occurs (status code 500).
     """
     global crud
     try:

@@ -467,6 +467,18 @@ class Crud:
 
    
     def add_new_value(self, value_time: int, value_type_id: int, device_id: int, value_value: float) -> None:
+        """
+        Adds a new value entry.
+
+        Args:
+            value_time (int): Time of value.
+            value_type_id (int): ID of value_type.
+            device_id (int): ID of device.
+            value_value (float): The value.
+
+        Returns:
+            None.
+        """
             with Session(self._engine) as session:
                 try:
                     new_value = Value(
