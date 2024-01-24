@@ -2,6 +2,7 @@ import logging
 import struct
 import threading
 import time
+import random
 
 from rdp.crud import Crud
 
@@ -25,6 +26,40 @@ class Reader:
 
     def _run(self) -> None:
         count = 0
+
+        # Testdaten für location
+        self._crud.add_location(location_name="Location_1", city="City_1")
+        self._crud.add_location(location_name="Location_2", city="City_2")
+        self._crud.add_location(location_name="Location_3", city="City_3")
+
+        # Testdaten für room
+        self._crud.add_room(room_name="Room_1", room_nr=101, location_id=1)
+        self._crud.add_room(room_name="Room_2", room_nr=102, location_id=2)
+        self._crud.add_room(room_name="Room_3", room_nr=103, location_id=3)
+
+        # Testdaten für device
+        self._crud.add_device(
+            device_device="Device_1",
+            device_name="Device_1",
+            postalCode=12345,
+            city="City_1",
+            room_id=1,
+        )
+        self._crud.add_device(
+            device_device="Device_2",
+            device_name="Device_2",
+            postalCode=54321,
+            city="City_2",
+            room_id=2,
+        )
+        self._crud.add_device(
+            device_device="Device_3",
+            device_name="Device_3",
+            postalCode=67890,
+            city="City_3",
+            room_id=3,
+        )
+        
         while self._thread is not None:
             logger.info("A")
             with open("/dev/rdp_cdev", "rb") as f:
@@ -47,7 +82,7 @@ class Reader:
                     value[0],
                 )
                 try:
-                    self._crud.add_value(value_time, type_num, value[0])
+                    self._crud.add_value(value_time, type_num, random.randint(1, 3), value[0]) #random.randint() --> weist random id von device zu value
                 except self._crud.IntegrityError:
                     logger.info("All Values read")
                     break
