@@ -479,16 +479,16 @@ class Crud:
         Returns:
             None.
         """
-            with Session(self._engine) as session:
-                try:
-                    new_value = Value(
-                        time=value_time,
-                        value_type_id=value_type_id,
-                        device_id=device_id,
-                        value=value_value
-                    )
-                    session.add(new_value)
-                    session.commit()
-                except IntegrityError:
-                    session.rollback()
-                    raise
+        with Session(self._engine) as session:
+            try:
+                new_value = Value(
+                    time=value_time,
+                    value_type_id=value_type_id,
+                    device_id=device_id,
+                    value=value_value
+                )
+                session.add(new_value)
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+                raise
