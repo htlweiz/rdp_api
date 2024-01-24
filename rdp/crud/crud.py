@@ -73,7 +73,7 @@ class Crud:
                 logging.error("Integrity")
                 raise
 
-    def add_device(self, _name: str, _location_id: int) -> int:
+    def add_device(self, _name: str, _location_id: int, _type: str) -> int:
         """Add a device to the database.
 
         Args:
@@ -86,7 +86,7 @@ class Crud:
             db_device = result.scalars().all()
 
             if db_device == []:
-                db_device = Device(name=_name, location_id=_location_id)
+                db_device = Device(name=_name, location_id=_location_id, device_type=_type)
 
                 session.add(db_device)
                 try:

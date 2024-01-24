@@ -99,7 +99,7 @@ def get_locations() -> List[ApiTypes.Location]:
         raise HTTPException(status_code=404, detail="Item not found")
 
 @app.post("/add_device/")
-def add_device(name: str, location_id: int):
+def add_device(name: str, location_id: int, _type: str):
     """POST request to add a new device.
 
     Args:
@@ -111,7 +111,7 @@ def add_device(name: str, location_id: int):
     """
     global crud
     try:
-        device_id = crud.add_device(name, location_id)
+        device_id = crud.add_device(name, location_id, _type)
         return device_id
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Could not add device")

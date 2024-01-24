@@ -42,6 +42,7 @@ class Device(Base):
     __tablename__ = "device"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
+    device_type: Mapped[str]
 
     location_id: Mapped[int] = mapped_column(ForeignKey("location.id"))
 

@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timezone
 
-url = "http://172.31.182.118:8080/api"
+url = "http://172.31.180.37:8080/api"
 
 def read_csv(filename, address, device):
     """

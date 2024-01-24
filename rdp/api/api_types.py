@@ -18,6 +18,7 @@ class Value(ValueNoID):
 
 class DeviceNoID(BaseModel):
     name: str
+    device_type: str
 
 class Device(DeviceNoID):
     id: int
