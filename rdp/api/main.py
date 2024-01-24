@@ -439,6 +439,21 @@ def get_values_by_device_id(device_id: int) -> List[ApiTypes.Value]:
 
 @app.post("/value/")
 def post_new_value(value_time: int, value_type_id: int, device_id: int, value_value: float) -> None:
+    """
+    Create a new value.
+
+    Args:
+        value_time: The value time.
+        value_type_id: The ID of value_type.
+        device_id: The ID of device.
+        value_value: The value
+
+    Returns:
+        ApiTypes.Room: The newly created room object.
+        
+    Raises:
+        HTTPException: If an integrity error occurs (status code 400).
+    """
     global crud
     try:
         crud.add_new_value(value_time, value_type_id, device_id, value_value)
