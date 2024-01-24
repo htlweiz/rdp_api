@@ -4,6 +4,9 @@ Das CRUD-Modell wurde um folgende Tabellen erweitert: <br>
     - Room <br>
     - Location <br>
 
+
+<img src"https://github.com/denisepostl/rdp_api/blob/main/docs/datamodel.png">
+
 Dafür wurden zuerst im ```model.py``` die entsprechenden Anpassungen vorgenommen. SQLAlchemy ist ein ORM und bildet Objekte direkt in Tabellen ab. Um die ForeignKeys zu repräsentieren wird ```back_populates``` verwendet. ```back_populates``` gibt sozusagen die Gegenstelle an. Wird ```back_populates``` verwendet muss die Beziehung auf beiden Seiten angegeben werden. Damit die ID automatisch generiert wird wird ```autoincrement``` auf ```True``` gesetzt.
 
 ## Erstellen einer neuen Tabelle:
