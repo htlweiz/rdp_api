@@ -41,7 +41,7 @@ Um ein Device, Value, Room oder eine Location hinzuzufügen wurden entsprechende
 Retourniert nur einen bestimmten Entry: <br>
 
 ```python
-    stmt = select(Device).where(Device.id == id) # Auswahl eines Entries anhand der ID <br>
+    stmt = select(Device).where(Device.id == id) # Auswahl eines Entries anhand der ID
     session.scalars(stmt).one()
 ```
 
