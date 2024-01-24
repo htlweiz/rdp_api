@@ -81,7 +81,7 @@ Die implementierten Funktionen im CRUD wurden jeweils für die Erweiterung der A
 
 ```python
 def post/get/put_<element>(parameter - Werte, die hinzugefügt/aktualisiert/zurückgegeben werden sollen):
-    # Aufruf der entsprechenden Funktion im CRUD-Modul
+    # Aufruf der entsprechenden Funktion vom CRUD-Modul
     crud.add_/get_/update_/...(parameter)
 ```
 
@@ -98,7 +98,7 @@ Anpassungen im ```api_types.py```
 Die API Types wurden entsprechend erweitert, die in Verbindung mit den API-Endpunkten stehen.
 
 ```python
-def get_/post_/put_/...(parameter - Werte, die hinzugefügt/aktualisiert/zurückgegeb werden sollen) -> List[ApiTypes.Value]:
+def get_/post_/put_/...(parameter - Werte, die hinzugefügt/aktualisiert/zurückgegeben werden sollen) -> List[ApiTypes.Value]:
 
 class DeviceNoID(BaseModel):
     name: str
