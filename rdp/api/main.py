@@ -261,6 +261,26 @@ def get_values(type_id:int=None, start:int=None, end:int=None) -> List[ApiTypes.
     except crud.NoResultFound:
         raise HTTPException(status_code=404, deltail="Item not found")
 
+@app.post("/value/")
+def put_values(value_time:int, value_type:int, value_value:float, device_id:int) -> List[ApiTypes.Value]:
+    """Post values from the csv import.
+
+    Args:
+        type_id (int, optional): If set, only values of this type are returned. Defaults to None.
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        List[ApiTypes.Value]: _description_
+    """
+    global crud
+    try:
+        id = crud.add_value(value_time=value_time, value_type=value_type, value_value=value_value, device_id=device_id)
+        return get_values(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader

@@ -25,14 +25,14 @@ class ValueType(Base):
 class Value(Base):
     __tablename__ = "value"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    time: Mapped[int] = mapped_column()
+    time: Mapped[int] = mapped_column(nullable=False)
     value: Mapped[float] = mapped_column()
     value_type_id: Mapped[int] = mapped_column(ForeignKey("value_type.id"))
     device_id: Mapped[int] = mapped_column(ForeignKey("device.id"))
 
     value_type = relationship("ValueType", back_populates="values")
     device: Mapped["Device"] = relationship(back_populates="values")
- 
+
     __table_args__ = (UniqueConstraint("time", "value_type_id", "device_id", name="value_integrity"),)
 
     def __repr__(self) -> str:

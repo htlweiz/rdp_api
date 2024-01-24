@@ -192,39 +192,39 @@ class Crud:
         Base.metadata.create_all(self._engine)
 
     def add_or_update_value_type(
-        self,
-        value_type_id: int = None,
-        value_type_name: str = None,
-        value_type_unit: str = None,
-    ) -> None:
-        """update or add a value type
+            self,
+            value_type_id: int = None,
+            value_type_name: str = None,
+            value_type_unit: str = None,
+        ) -> None:
+            """update or add a value type
 
-        Args:
-            value_type_id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
-            value_type_name (str, optional): Typename wich should be set or updated. Defaults to None.
-            value_type_unit (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
+            Args:
+                value_type_id (int, optional): ValueType id to be modified (if None a new ValueType is added), Default to None.
+                value_type_name (str, optional): Typename wich should be set or updated. Defaults to None.
+                value_type_unit (str, optional): Unit of mesarument wich should be set or updated. Defaults to None.
 
-        Returns:
-            _type_: _description_
-        """
-        with Session(self._engine) as session:
-            stmt = select(ValueType).where(ValueType.id == value_type_id)
-            db_type = None
-            for type in session.scalars(stmt):
-                db_type = type
-            if db_type is None:
-                db_type = ValueType(id=value_type_id)
-            if value_type_name:
-                db_type.type_name = value_type_name
-            elif not db_type.type_name:
-                db_type.type_name = "%d" % value_type_id
-            if value_type_unit:
-                db_type.type_unit = value_type_unit
-            elif not db_type.type_unit:
-                db_type.type_unit = "UNIT_%d" % value_type_id
-            session.add_all([db_type])
-            session.commit()
-            return db_type
+            Returns:
+                _type_: _description_
+            """
+            with Session(self._engine) as session:
+                stmt = select(ValueType).where(ValueType.id == value_type_id)
+                db_type = None
+                for type in session.scalars(stmt):
+                    db_type = type
+                if db_type is None:
+                    db_type = ValueType(id=value_type_id)
+                if value_type_name:
+                    db_type.type_name = value_type_name
+                elif not db_type.type_name:
+                    db_type.type_name = "%d" % value_type_id
+                if value_type_unit:
+                    db_type.type_unit = value_type_unit
+                elif not db_type.type_unit:
+                    db_type.type_unit = "UNIT_%d" % value_type_id
+                session.add_all([db_type])
+                session.commit()
+                return db_type
     
     def add_or_update_device(
         self,
