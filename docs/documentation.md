@@ -16,7 +16,7 @@ class Device(Base):
     __tablename__ = "device"
 ```
 
-## Definition des Foregn Key's
+## Definition des Foreign Key's
 
 ```python
     room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=True)
