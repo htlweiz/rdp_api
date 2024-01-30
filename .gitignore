@@ -3,3 +3,4 @@ venv
 __pycache__
 *.db
 rdp_api.egg-info
+build
