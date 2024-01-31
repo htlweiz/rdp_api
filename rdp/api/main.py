@@ -8,7 +8,8 @@ from rdp.sensor import Reader
 
 from . import api_types as ApiTypes
 
-logger = logging.getLogger("rdp.api")
+logging.getLogger(__name__).setLevel(logging.INFO)
+
 app = FastAPI()
 
 
@@ -143,7 +144,7 @@ def get_value(value_id: int) -> ApiTypes.Value:
         value = crud.get_value(value_id=value_id)
         return value
     except Exception as e:
-        logger.error(str(e))
+        logging.error(str(e))
         raise HTTPException(status_code=404, detail="Item not found")
 
 
@@ -179,19 +180,19 @@ def put_value(value_id: int, value: ApiTypes.ValueNoID) -> ApiTypes.ValueNoID:
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""
-    logger.info("STARTUP: Sensor reader!")
+    logging.info("STARTUP: Sensor reader!")
     global reader, crud
     engine = create_engine("sqlite:///rdp.dev.db")
     crud = Crud(engine)
     reader = Reader(crud)
     reader.start()
-    logger.debug("STARTUP: Sensor reader completed!")
+    logging.debug("STARTUP: Sensor reader completed!")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """stop the character device reader"""
     global reader
-    logger.debug("SHUTDOWN: Sensor reader!")
+    logging.debug("SHUTDOWN: Sensor reader!")
     reader.stop()
-    logger.info("SHUTDOWN: Sensor reader completed!")
+    logging.info("SHUTDOWN: Sensor reader completed!")

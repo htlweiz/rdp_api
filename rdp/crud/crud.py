@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from .model import Base, Value, ValueType
 
+logging.getLogger().setLevel(logging.INFO)
+
 
 class Crud:
     def __init__(self, engine):
@@ -180,9 +182,6 @@ class Crud:
             if end is not None:
                 statement = statement.where(Value.time <= end)
             statement = statement.order_by(Value.time)
-            logging.error(start)
-            logging.error(statement)
-
             return session.scalars(statement).all()
 
     def get_min_max_values(
