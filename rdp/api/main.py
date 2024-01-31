@@ -125,6 +125,28 @@ def get_values(
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+@app.get("/value/{value_id}/")
+def get_value(value_id: int) -> ApiTypes.Value:
+    """Get a single value identified by id
+
+    Args:
+        value_id (int): The value to get
+
+    Raises:
+        HTTPException: 404 if not found
+
+    Returns:
+        ApiTypes.Value: The desired value
+    """
+    global crud
+    try:
+        value = crud.get_value(value_id=value_id)
+        return value
+    except Exception as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail="Item not found")
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""

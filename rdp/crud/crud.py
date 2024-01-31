@@ -54,17 +54,24 @@ class Crud:
             session.commit()
             return db_type
 
-    def add_value(self, value_time: int, value_type: int, value_value: float) -> None:
+    def add_value(self, value_time: int,
+                  value_type: int,
+                  value_value: float,
+                  value_comment: str = "") -> None:
         """Add a measurement point to the database.
 
         Args:
             value_time (int): unix time stamp of the value.
             value_type (int): Valuetype id of the given value.
             value_value (float): The measurement value as float.
+            value_comment (string): An optional comment for a single value
         """
         with Session(self._engine) as session:
             db_type = self.add_or_update_value_type(value_type)
-            db_value = Value(time=value_time, value=value_value, value_type=db_type)
+            db_value = Value(time=value_time,
+                             value=value_value,
+                             value_type=db_type,
+                             comment=value_comment)
 
             session.add_all([db_type, db_value])
             try:
@@ -95,6 +102,51 @@ class Crud:
         with Session(self._engine) as session:
             statement = select(ValueType).where(ValueType.value_type_id == value_type_id)
             return session.scalars(statement).one()
+
+    def put_value(self, value: Value):
+        """Put a single value
+
+        args:
+            value(Value): the value to update in the db
+
+
+        returns:
+            Value: The updated value
+
+        raises:
+            Curd.NoResultFound
+        """
+        with Session(self._engine) as session:
+            statement = select(Value).where(Value.value_id == value.value_id)
+            temp_value = session.scalar(statement=statement)
+            if not temp_value:
+                raise NoResultFound("No result for id:%d" % value.value.id)
+            temp_value.value = value.value
+            temp_value.value_type_id = value.value_type_id
+            temp_value.time = value.time
+            temp_value.comment = value.comment
+            session.add(temp_value)
+            session.commit()
+            return self.get_value(value_id=value.value_id)
+
+    def get_value(self, value_id: int) -> Value:
+        """Get a single value identified by its id
+
+        args:
+            value_id(int):  Value primary id to look for
+
+        Raises:
+            Crud.NoResultFound
+
+        Returns (Value):
+            the desired value
+        """
+        with Session(self._engine) as session:
+            statement = select(Value).where(Value.value_id == value_id)
+            value = session.scalar(statement=statement)
+            if not value:
+                raise NoResultFound("No result for id:%d" % value_id)
+            return value
 
     def get_values(
         self, value_type_id: int = None, start: int = None, end: int = None

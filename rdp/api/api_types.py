@@ -14,6 +14,7 @@ class ValueNoID(BaseModel):
     value_type_id: int
     time: int
     value: float
+    comment: str
 
 
 class Value(ValueNoID):

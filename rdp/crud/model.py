@@ -27,6 +27,7 @@ class Value(Base):
     value_id: Mapped[int] = mapped_column(primary_key=True)
     time: Mapped[int] = mapped_column()
     value: Mapped[float] = mapped_column()
+    comment: Mapped[str] = mapped_column(default="")
     value_type_id: Mapped[int] = mapped_column(ForeignKey("value_type.value_type_id"))
 
     value_type: Mapped["ValueType"] = relationship(back_populates="values")

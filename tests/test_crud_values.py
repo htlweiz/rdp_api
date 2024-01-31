@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import InterfaceError, StatementError
 from sqlalchemy.orm import Session
 
-from rdp.crud.crud import Crud
+from rdp.crud.crud import Crud, NoResultFound
 from rdp.crud.model import Value
 
 
@@ -68,7 +68,7 @@ def test_add_value(crud_session_in_memory: Tuple[Crud, Session]):
             ]
 
 
-def test_get_values(crud_session_in_memory: Tuple[Crud, Session]):
+def test_values(crud_session_in_memory: Tuple[Crud, Session]):
     crud_in_memory, session = crud_session_in_memory
 
     # add value types
@@ -124,6 +124,29 @@ def test_get_values(crud_session_in_memory: Tuple[Crud, Session]):
             datetime.datetime(year=2023, month=9, day=26, second=1).timestamp(),
             datetime.datetime(year=2023, month=9, day=26, second=3).timestamp(),
         ]
+    result = crud_in_memory.get_value(value_id=2)
+    assert result
+    assert result.value_id == 2
+    assert result.value == 180.0
+
+    try:
+        result = crud_in_memory.get_value(value_id=100)
+        assert result
+        assert "There should not be a result for id 100" == ""
+    except NoResultFound as e:
+        assert e
+        # We expect this error here, all good
+    except Exception as e:
+        assert e
+        raise
+
+    result = crud_in_memory.get_value(value_id=2)
+    assert result
+    assert result.value_id == 2
+    assert result.comment == ""
+    result.comment = "TestComment"
+    result = crud_in_memory.put_value(result)
+    assert result.comment == "TestComment"
 
 
 def test_get_min_max_values(crud_session_in_memory: Tuple[Crud, Session]):
