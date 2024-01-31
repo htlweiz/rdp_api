@@ -103,7 +103,11 @@ class Crud:
             statement = select(ValueType).where(ValueType.value_type_id == value_type_id)
             return session.scalars(statement).one()
 
-    def put_value(self, value: Value):
+    def put_value(self, value_id: int,
+                  value_type_id: int,
+                  value_time: int,
+                  value: float,
+                  comment: str = ""):
         """Put a single value
 
         args:
@@ -117,17 +121,17 @@ class Crud:
             Curd.NoResultFound
         """
         with Session(self._engine) as session:
-            statement = select(Value).where(Value.value_id == value.value_id)
+            statement = select(Value).where(Value.value_id == value_id)
             temp_value = session.scalar(statement=statement)
             if not temp_value:
                 raise NoResultFound("No result for id:%d" % value.value.id)
-            temp_value.value = value.value
-            temp_value.value_type_id = value.value_type_id
-            temp_value.time = value.time
-            temp_value.comment = value.comment
+            temp_value.value = value
+            temp_value.value_type_id = value_type_id
+            temp_value.time = value_time
+            temp_value.comment = comment
             session.add(temp_value)
             session.commit()
-            return self.get_value(value_id=value.value_id)
+            return self.get_value(value_id=value_id)
 
     def get_value(self, value_id: int) -> Value:
         """Get a single value identified by its id

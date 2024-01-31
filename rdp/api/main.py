@@ -147,6 +147,35 @@ def get_value(value_id: int) -> ApiTypes.Value:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+@app.put("/value/{value_id}/")
+def put_value(value_id: int, value: ApiTypes.ValueNoID) -> ApiTypes.ValueNoID:
+    """Put a single value
+
+    Args:
+        value_id (int): Value id of update target
+        value(ApiTypes.Value): value to update
+
+    Raises HTTPException: 404 if not found
+
+    Returns:
+        ApitTypes.Value: The updated value
+    """
+    global crud
+    try:
+        db_value = crud.get_value(value_id=value_id)
+        if not db_value:
+            raise HTTPException(status_code=404, description="ID Missmatch")
+        crud.put_value(value_id=value_id,
+                       value_time=value.time,
+                       value_type_id=value.value_type_id,
+                       value=value.value,
+                       comment=value.comment)
+        db_value = crud.get_value(value_id=value_id)
+        return db_value
+    except Exception:
+        raise
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """start the character device reader"""

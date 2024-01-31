@@ -18,7 +18,7 @@ class ValueNoID(BaseModel):
 
 
 class Value(ValueNoID):
-    value_type_id: int
+    value_id: int
 
 
 class ApiDescription(BaseModel):
